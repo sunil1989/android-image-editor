@@ -171,7 +171,7 @@ public class MainActivity1 extends Activity {
 		        Bitmap logo = myView.mBitmap;
 		        c.drawBitmap(logo, 0, 0, null);
 		        setContentView(R.layout.main);
-		        ((ImageView)findViewById(R.id.dressImageView)).setImageBitmap(myView.mBitmap);
+		        ((ImageView)findViewById(R.id.dressImageView)).setImageBitmap(picture);
 				
 			} catch (FileNotFoundException e) {
 				e.printStackTrace();
