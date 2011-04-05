@@ -3,6 +3,7 @@ package android.image.editor;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 
+
 import android.image.editor.R;
 import android.image.editor.R.drawable;
 
@@ -18,12 +19,16 @@ import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
+import android.graphics.Rect;
+import android.graphics.Bitmap.CompressFormat;
+import android.graphics.BitmapFactory.Options;
 import android.os.Bundle;
 import android.os.Environment;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.ImageView;
 
 public class MainActivity1 extends Activity {
 	
@@ -39,13 +44,13 @@ public class MainActivity1 extends Activity {
         mPaint.setAntiAlias(true);
         mPaint.setDither(true);
         mPaint.setARGB(0, 255, 255, 255);
-        //mPaint.setColor(0x00FFFFFF);
+//        mPaint.setColor(0);
         //mPaint.setAlpha(0);
         mPaint.setStyle(Paint.Style.STROKE);
         mPaint.setStrokeJoin(Paint.Join.ROUND);
         mPaint.setStrokeCap(Paint.Cap.ROUND);
         mPaint.setStrokeWidth(12);
-        mPaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC));
+        mPaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.CLEAR));
 
         //mEmboss = new EmbossMaskFilter(new float[] { 1, 1, 1 },
         //                               0.4f, 6, 3.5f);
@@ -67,6 +72,7 @@ public class MainActivity1 extends Activity {
         //private static final float MAXP = 0.75f;
 
         private Bitmap  mBitmap;
+//        private Bitmap  resultBitmap;
         private Canvas  mCanvas;
         private Path    mPath;
         private Paint   mBitmapPaint;
@@ -90,11 +96,10 @@ public class MainActivity1 extends Activity {
 
         @Override
         protected void onDraw(Canvas canvas) {
-            canvas.drawColor(0x00FFFFFF);
+//            canvas.drawColor(0x00FFFFFF);
         	//canvas.drawColor(0x00FFFFF);
-
             canvas.drawBitmap(mBitmap, 0, 0, mBitmapPaint);
-
+//
             canvas.drawPath(mPath, mPaint);
         }
 
@@ -159,6 +164,15 @@ public class MainActivity1 extends Activity {
 			FileOutputStream out = null;
 			try {
 				out = new FileOutputStream(Environment.getExternalStorageDirectory() + "/dress1.png");
+		        Bitmap picture = BitmapFactory.decodeFile(Environment.getExternalStorageDirectory() + "/dress.jpg").
+		        	copy(Bitmap.Config.ARGB_8888, true);
+		        Canvas c = new Canvas(picture);
+		        
+		        Bitmap logo = myView.mBitmap;
+		        c.drawBitmap(logo, 0, 0, null);
+		        setContentView(R.layout.main);
+		        ((ImageView)findViewById(R.id.dressImageView)).setImageBitmap(myView.mBitmap);
+				
 			} catch (FileNotFoundException e) {
 				e.printStackTrace();
 			}
