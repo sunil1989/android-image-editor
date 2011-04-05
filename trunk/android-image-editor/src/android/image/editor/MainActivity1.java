@@ -19,7 +19,6 @@ import android.graphics.Path;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
 import android.os.Bundle;
-import android.os.Environment;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
@@ -38,14 +37,14 @@ public class MainActivity1 extends Activity {
         mPaint = new Paint();
         mPaint.setAntiAlias(true);
         mPaint.setDither(true);
-        mPaint.setARGB(128, 255, 255, 255);
+        mPaint.setARGB(0, 255, 255, 255);
         //mPaint.setColor(0x00FFFFFF);
         //mPaint.setAlpha(0);
         mPaint.setStyle(Paint.Style.STROKE);
         mPaint.setStrokeJoin(Paint.Join.ROUND);
         mPaint.setStrokeCap(Paint.Cap.ROUND);
         mPaint.setStrokeWidth(12);
-        //mPaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC));
+        mPaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC));
 
         //mEmboss = new EmbossMaskFilter(new float[] { 1, 1, 1 },
         //                               0.4f, 6, 3.5f);
@@ -81,7 +80,7 @@ public class MainActivity1 extends Activity {
         @Override
         protected void onSizeChanged(int w, int h, int oldw, int oldh) {
             super.onSizeChanged(w, h, oldw, oldh);
-            Bitmap bm = BitmapFactory.decodeFile(Environment.getExternalStorageDirectory() + "/dress.jpg");
+            Bitmap bm = BitmapFactory.decodeFile("/sdcard/dress.jpg");
             //Bitmap bm = BitmapFactory.decodeResource(getContext().getResources(), R.drawable.dress);
             mBitmap = bm.copy(Bitmap.Config.ARGB_8888, true);
             //mBitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
@@ -90,8 +89,8 @@ public class MainActivity1 extends Activity {
 
         @Override
         protected void onDraw(Canvas canvas) {
-            //canvas.drawColor(0xFFAAAAAA);
-        	canvas.drawColor(0x00FFFFF);
+            canvas.drawColor(0x00FFFFFF);
+        	//canvas.drawColor(0x00FFFFF);
 
             canvas.drawBitmap(mBitmap, 0, 0, mBitmapPaint);
 
@@ -158,11 +157,11 @@ public class MainActivity1 extends Activity {
 		if (item.getTitle().equals("save")) {
 			FileOutputStream out = null;
 			try {
-				out = new FileOutputStream(Environment.getExternalStorageDirectory() +"/dress1.jpg");
+				out = new FileOutputStream("/sdcard/dress1.png");
 			} catch (FileNotFoundException e) {
 				e.printStackTrace();
 			}
-			myView.mBitmap.compress(Bitmap.CompressFormat.JPEG, 90, out);
+			myView.mBitmap.compress(Bitmap.CompressFormat.PNG, 90, out);
 			return true;
 		}
 		return super.onOptionsItemSelected(item);
