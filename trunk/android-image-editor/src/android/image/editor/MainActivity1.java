@@ -19,6 +19,7 @@ import android.graphics.Path;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
 import android.os.Bundle;
+import android.os.Environment;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
@@ -80,7 +81,7 @@ public class MainActivity1 extends Activity {
         @Override
         protected void onSizeChanged(int w, int h, int oldw, int oldh) {
             super.onSizeChanged(w, h, oldw, oldh);
-            Bitmap bm = BitmapFactory.decodeFile("/sdcard/dress.jpg");
+            Bitmap bm = BitmapFactory.decodeFile(Environment.getExternalStorageDirectory() + "/dress.jpg");
             //Bitmap bm = BitmapFactory.decodeResource(getContext().getResources(), R.drawable.dress);
             mBitmap = bm.copy(Bitmap.Config.ARGB_8888, true);
             //mBitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
@@ -157,7 +158,7 @@ public class MainActivity1 extends Activity {
 		if (item.getTitle().equals("save")) {
 			FileOutputStream out = null;
 			try {
-				out = new FileOutputStream("/sdcard/dress1.jpg");
+				out = new FileOutputStream(Environment.getExternalStorageDirectory() +"/dress1.jpg");
 			} catch (FileNotFoundException e) {
 				e.printStackTrace();
 			}

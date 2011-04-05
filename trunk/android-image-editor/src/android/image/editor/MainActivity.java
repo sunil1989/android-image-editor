@@ -16,6 +16,7 @@ import android.graphics.PorterDuffXfermode;
 import android.graphics.PorterDuff;
 import android.graphics.Bitmap.Config;
 import android.os.Bundle;
+import android.os.Environment;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -55,7 +56,7 @@ public class MainActivity extends Activity {
 			mPaint.setAlpha(0);
 			mPaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.DST_IN));
 			mPaint.setAntiAlias(true);
-			Bitmap bm = BitmapFactory.decodeFile("/sdcard/dress.jpg");
+			Bitmap bm = BitmapFactory.decodeFile(Environment.getExternalStorageDirectory() + "/dress.jpg");
 			// converting image bitmap into mutable bitmap
 			bitmap = Bitmap.createBitmap(bm.getWidth(), bm.getHeight(), Config.ARGB_8888);
 			pcanvas = new Canvas();
@@ -94,7 +95,7 @@ public class MainActivity extends Activity {
 		if (item.getTitle().equals("save")) {
 			FileOutputStream out = null;
 			try {
-				out = new FileOutputStream("/sdcard/dress1.jpg");
+				out = new FileOutputStream(Environment.getExternalStorageDirectory() + "/dress1.jpg");
 			} catch (FileNotFoundException e) {
 				e.printStackTrace();
 			}
