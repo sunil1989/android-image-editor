@@ -50,7 +50,8 @@ public class MainActivity1 extends Activity {
         mPaint.setStrokeJoin(Paint.Join.ROUND);
         mPaint.setStrokeCap(Paint.Cap.ROUND);
         mPaint.setStrokeWidth(12);
-        mPaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.CLEAR));
+        mPaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC));
+        
 
         //mEmboss = new EmbossMaskFilter(new float[] { 1, 1, 1 },
         //                               0.4f, 6, 3.5f);
@@ -96,7 +97,8 @@ public class MainActivity1 extends Activity {
 
         @Override
         protected void onDraw(Canvas canvas) {
-//            canvas.drawColor(0x00FFFFFF);
+            canvas.drawColor(0x00FFFFFF);
+            
         	//canvas.drawColor(0x00FFFFF);
             canvas.drawBitmap(mBitmap, 0, 0, mBitmapPaint);
 //
@@ -125,6 +127,7 @@ public class MainActivity1 extends Activity {
             mPath.lineTo(mX, mY);
             // commit the path to our offscreen
             mCanvas.drawPath(mPath, mPaint);
+            
             // kill this so we don't double draw
             mPath.reset();
         }
