@@ -1,9 +1,9 @@
 package android.image.editor;
 
-import android.image.editor.MainActivity1.MyView;
-import android.image.editor.MainActivity1.MyView.MyViewMemento;
+import android.image.editor.MainActivity.MyView;
+import android.image.editor.MainActivity.MyView.MyViewMemento;
 
-public class DrawPathCommand implements Command {
+public class DrawPathCommand implements UndoableCommand {
 	
 	private MyView target;
 	
@@ -16,11 +16,11 @@ public class DrawPathCommand implements Command {
 	@Override
 	public void execute() {
 		state = target.createMemento();
-		target.drawPath();
+		((EraseTool)target.getCurrentTool()).drawPath(target);
 	}
 
 	@Override
-	public void unexecute() {
+	public void undo() {
 		target.setMemento(state);
 		state.recycle();
 		target.invalidate();
