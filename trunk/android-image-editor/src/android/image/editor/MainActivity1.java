@@ -148,6 +148,10 @@ public class MainActivity1 extends Activity {
     			this.state = state;
     		}
     		
+    		public void recycle() {
+    			state.recycle();
+    		}
+    		
     	}
     }
     

@@ -22,6 +22,7 @@ public class DrawPathCommand implements Command {
 	@Override
 	public void unexecute() {
 		target.setMemento(state);
+		state.recycle();
 		target.invalidate();
 	}
 
