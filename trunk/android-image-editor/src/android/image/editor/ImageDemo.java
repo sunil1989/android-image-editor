@@ -45,7 +45,6 @@ public class ImageDemo extends Activity {
 	    private Paint   mPaint;
 	    Bitmap bitmap;
 	    Canvas pcanvas ;
-	    Bitmap bm;
 	     int x = 0;
 	     int y =0;
 	     int r =0;
@@ -55,7 +54,7 @@ public class ImageDemo extends Activity {
 	        //Log.v("Panel", ">>>>>>");
 
 	        setFocusable(true);
-	        setBackgroundColor(Color.GREEN);
+	        setBackgroundColor(Color.WHITE);
 
 	        // setting paint 
 	             mPaint = new Paint();
@@ -68,7 +67,6 @@ public class ImageDemo extends Activity {
 
 	            //Bitmap bm = BitmapFactory.decodeResource(getResources(),  R.drawable.mickey);
 	            Bitmap bm = BitmapFactory.decodeFile(Environment.getExternalStorageDirectory() + "/dress.jpg");
-	            this.bm = bm;
 	            // converting image bitmap into mutable bitmap
 
 	              bitmap =  Bitmap.createBitmap(295, 260, Config.ARGB_8888);

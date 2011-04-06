@@ -3,32 +3,21 @@ package android.image.editor;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 
-
-import android.image.editor.R;
-import android.image.editor.R.drawable;
-
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.BlurMaskFilter;
 import android.graphics.Canvas;
-import android.graphics.EmbossMaskFilter;
-import android.graphics.MaskFilter;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
-import android.graphics.Rect;
-import android.graphics.Bitmap.CompressFormat;
-import android.graphics.BitmapFactory.Options;
 import android.os.Bundle;
 import android.os.Environment;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
-import android.widget.ImageView;
 
 public class MainActivity1 extends Activity {
 	
@@ -37,71 +26,51 @@ public class MainActivity1 extends Activity {
 	@Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        myView = new MyView(this);
-        setContentView(myView);
-
-        mPaint = new Paint();
-        mPaint.setAntiAlias(true);
-        mPaint.setDither(true);
-        mPaint.setARGB(0, 255, 255, 255);
-//        mPaint.setColor(0);
-        //mPaint.setAlpha(0);
-        mPaint.setStyle(Paint.Style.STROKE);
-        mPaint.setStrokeJoin(Paint.Join.ROUND);
-        mPaint.setStrokeCap(Paint.Cap.ROUND);
-        mPaint.setStrokeWidth(12);
-        mPaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC));
-        
-
-        //mEmboss = new EmbossMaskFilter(new float[] { 1, 1, 1 },
-        //                               0.4f, 6, 3.5f);
-
-        //mBlur = new BlurMaskFilter(8, BlurMaskFilter.Blur.NORMAL);
+        setContentView(myView = new MyView(this));
     }
 
-    private Paint       mPaint;
-    //private MaskFilter  mEmboss;
-    //private MaskFilter  mBlur;
-
-    public void colorChanged(int color) {
-        mPaint.setColor(color);
-    }
-
-    public class MyView extends View {
-
-        //private static final float MINP = 0.25f;
-        //private static final float MAXP = 0.75f;
+    public static class MyView extends View {
 
         private Bitmap  mBitmap;
-//        private Bitmap  resultBitmap;
         private Canvas  mCanvas;
         private Path    mPath;
         private Paint   mBitmapPaint;
+        private Paint       mPaint;
+        private Command lastCommand;
 
         public MyView(Context c) {
             super(c);
 
             mPath = new Path();
             mBitmapPaint = new Paint(Paint.DITHER_FLAG);
+            mPaint = new Paint();
+            mPaint.setAntiAlias(true);
+            mPaint.setDither(true);
+            mPaint.setColor(0xFFFF0000);
+            mPaint.setStyle(Paint.Style.STROKE);
+            mPaint.setStrokeJoin(Paint.Join.ROUND);
+            mPaint.setStrokeCap(Paint.Cap.ROUND);
+            mPaint.setStrokeWidth(12);
+            mPaint.setXfermode(new PorterDuffXfermode(
+                    PorterDuff.Mode.CLEAR));
         }
 
         @Override
         protected void onSizeChanged(int w, int h, int oldw, int oldh) {
             super.onSizeChanged(w, h, oldw, oldh);
             Bitmap bm = BitmapFactory.decodeFile(Environment.getExternalStorageDirectory() + "/dress.jpg");
-            //Bitmap bm = BitmapFactory.decodeResource(getContext().getResources(), R.drawable.dress);
-            mBitmap = bm.copy(Bitmap.Config.ARGB_8888, true);
-            //mBitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
+            mBitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
             mCanvas = new Canvas(mBitmap);
+            mCanvas.drawBitmap(bm, 0, 0, null);
+            bm.recycle();
         }
 
         @Override
         protected void onDraw(Canvas canvas) {
-            canvas.drawColor(0x00FFFFFF);
-            
-        	//canvas.drawColor(0x00FFFFF);
+            canvas.drawColor(0xFFAAAAAA);
+
             canvas.drawBitmap(mBitmap, 0, 0, mBitmapPaint);
-//
+
             canvas.drawPath(mPath, mPaint);
         }
 
@@ -126,8 +95,8 @@ public class MainActivity1 extends Activity {
         private void touch_up() {
             mPath.lineTo(mX, mY);
             // commit the path to our offscreen
-            mCanvas.drawPath(mPath, mPaint);
-            
+            lastCommand = new DrawPathCommand(this);
+            lastCommand.execute();
             // kill this so we don't double draw
             mPath.reset();
         }
@@ -153,11 +122,39 @@ public class MainActivity1 extends Activity {
             }
             return true;
         }
+        
+        public void drawPath() {
+        	mCanvas.drawPath(mPath, mPaint);
+        }
+        
+        public MyViewMemento createMemento() {
+    		return new MyViewMemento(mBitmap.copy(Bitmap.Config.ARGB_8888, false));
+    	}
+    	
+    	public void setMemento(MyViewMemento memento) {
+    		mCanvas.drawColor(0, PorterDuff.Mode.CLEAR);
+    		mCanvas.drawBitmap(memento.state, 0, 0, null);
+    	}
+    	
+    	private void undo() {
+    		lastCommand.unexecute();
+    	}
+        
+        public static class MyViewMemento {
+    		
+    		private Bitmap state;
+
+    		private MyViewMemento(Bitmap state) {
+    			this.state = state;
+    		}
+    		
+    	}
     }
     
     @Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		menu.add("save");
+		menu.add("undo");
 		return super.onCreateOptionsMenu(menu);
 	}
 
@@ -167,20 +164,22 @@ public class MainActivity1 extends Activity {
 			FileOutputStream out = null;
 			try {
 				out = new FileOutputStream(Environment.getExternalStorageDirectory() + "/dress1.png");
-		        Bitmap picture = BitmapFactory.decodeFile(Environment.getExternalStorageDirectory() + "/dress.jpg").
+		        /*Bitmap picture = BitmapFactory.decodeFile(Environment.getExternalStorageDirectory() + "/dress.jpg").
 		        	copy(Bitmap.Config.ARGB_8888, true);
 		        Canvas c = new Canvas(picture);
 		        
 		        Bitmap logo = myView.mBitmap;
 		        c.drawBitmap(logo, 0, 0, null);
 		        setContentView(R.layout.main);
-		        ((ImageView)findViewById(R.id.dressImageView)).setImageBitmap(picture);
+		        ((ImageView)findViewById(R.id.dressImageView)).setImageBitmap(picture);*/
 				
 			} catch (FileNotFoundException e) {
 				e.printStackTrace();
 			}
 			myView.mBitmap.compress(Bitmap.CompressFormat.PNG, 90, out);
 			return true;
+		} else if (item.getTitle().equals("undo")) {
+			myView.undo();
 		}
 		return super.onOptionsItemSelected(item);
 	}
