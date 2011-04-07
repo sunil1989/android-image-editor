@@ -1,10 +1,10 @@
-package android.image.editor;
+package android.image.editor.tool;
 
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.RectF;
 import android.graphics.Paint.Style;
-import android.image.editor.MainActivity.MyView;
+import android.image.editor.ImageEditorView;
 
 public class SelectionTool implements Tool {
 	
@@ -18,7 +18,7 @@ public class SelectionTool implements Tool {
 	}
 	
 	@Override
-	public void touchStart(MyView context, float x, float y) {
+	public void touchStart(ImageEditorView context, float x, float y) {
 		startX = x;
 		startY = y;
 		clearSelection();
@@ -26,7 +26,7 @@ public class SelectionTool implements Tool {
 	}
 
 	@Override
-	public void touchMove(MyView context, float x, float y) {
+	public void touchMove(ImageEditorView context, float x, float y) {
 		float left = Math.min(startX, x);
 		float top = Math.min(startY, y);
 		float right = Math.max(startX, x);
@@ -36,12 +36,12 @@ public class SelectionTool implements Tool {
 	}
 
 	@Override
-	public void touchUp(MyView context) {
+	public void touchUp(ImageEditorView context) {
 		
 	}
 
 	@Override
-	public void onDraw(MyView context, Canvas canvas) {
+	public void onDraw(ImageEditorView context, Canvas canvas) {
 		canvas.drawColor(0xFFAAAAAA);
 
         context.drawBitmap(canvas);

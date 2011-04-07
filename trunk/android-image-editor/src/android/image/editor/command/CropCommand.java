@@ -1,17 +1,18 @@
-package android.image.editor;
+package android.image.editor.command;
 
 import android.graphics.Bitmap;
 import android.graphics.RectF;
-import android.image.editor.MainActivity.MyView;
-import android.image.editor.MainActivity.MyView.MyViewMemento;
+import android.image.editor.ImageEditorView;
+import android.image.editor.ImageEditorView.ImageEditorViewMemento;
+import android.image.editor.tool.SelectionTool;
 
 public class CropCommand implements UndoableCommand {
 	
-	private MyView target;
+	private ImageEditorView target;
 	
-	private MyViewMemento state;
+	private ImageEditorViewMemento state;
 
-	public CropCommand(MyView target) {
+	public CropCommand(ImageEditorView target) {
 		super();
 		this.target = target;
 	}

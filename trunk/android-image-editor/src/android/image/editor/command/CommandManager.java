@@ -1,4 +1,6 @@
-package android.image.editor;
+package android.image.editor.command;
+
+import android.image.editor.LimitedSizeStack;
 
 public class CommandManager {
 	

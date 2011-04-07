@@ -1,4 +1,4 @@
-package android.image.editor;
+package android.image.editor.command;
 
 public interface UndoableCommand extends Command {
 	

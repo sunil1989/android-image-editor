@@ -1,11 +1,12 @@
-package android.image.editor;
+package android.image.editor.tool;
 
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
-import android.image.editor.MainActivity.MyView;
+import android.image.editor.ImageEditorView;
+import android.image.editor.command.DrawPathCommand;
 
 public class EraseTool implements Tool {
 	
@@ -28,7 +29,7 @@ public class EraseTool implements Tool {
 	}
 
 	@Override
-	public void touchStart(MyView context, float x, float y) {
+	public void touchStart(ImageEditorView context, float x, float y) {
 		mPath.reset();
         mPath.moveTo(x, y);
         mX = x;
@@ -37,7 +38,7 @@ public class EraseTool implements Tool {
 	}
 
 	@Override
-	public void touchMove(MyView context, float x, float y) {
+	public void touchMove(ImageEditorView context, float x, float y) {
 		float dx = Math.abs(x - mX);
         float dy = Math.abs(y - mY);
         if (dx >= TOUCH_TOLERANCE || dy >= TOUCH_TOLERANCE) {
@@ -49,7 +50,7 @@ public class EraseTool implements Tool {
 	}
 
 	@Override
-	public void touchUp(MyView context) {
+	public void touchUp(ImageEditorView context) {
 		mPath.lineTo(mX, mY);
         // commit the path to our offscreen
 		context.getCommandManager().executeCommand(new DrawPathCommand(context));
@@ -59,7 +60,7 @@ public class EraseTool implements Tool {
 	}
 
 	@Override
-	public void onDraw(MyView context, Canvas canvas) {
+	public void onDraw(ImageEditorView context, Canvas canvas) {
 		canvas.drawColor(0xFFAAAAAA);
 
         context.drawBitmap(canvas);
@@ -67,7 +68,7 @@ public class EraseTool implements Tool {
         canvas.drawPath(mPath, mPaint);
 	}
 	
-	public void drawPath(MyView context) {
+	public void drawPath(ImageEditorView context) {
     	context.getCanvas().drawPath(mPath, mPaint);
     }
 	

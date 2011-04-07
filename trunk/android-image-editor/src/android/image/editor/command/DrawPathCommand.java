@@ -1,15 +1,16 @@
-package android.image.editor;
+package android.image.editor.command;
 
-import android.image.editor.MainActivity.MyView;
-import android.image.editor.MainActivity.MyView.MyViewMemento;
+import android.image.editor.ImageEditorView;
+import android.image.editor.ImageEditorView.ImageEditorViewMemento;
+import android.image.editor.tool.EraseTool;
 
 public class DrawPathCommand implements UndoableCommand {
 	
-	private MyView target;
+	private ImageEditorView target;
 	
-	private MyViewMemento state;
+	private ImageEditorViewMemento state;
 
-	public DrawPathCommand(MyView target) {
+	public DrawPathCommand(ImageEditorView target) {
 		this.target = target;
 	}
 
