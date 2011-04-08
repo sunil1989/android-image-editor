@@ -5,6 +5,9 @@ import java.io.FileOutputStream;
 
 import android.app.Activity;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import com.android.imgedit.R;
+
 import com.android.imgedit.tool.EraseTool;
 import com.android.imgedit.tool.SelectionTool;
 import android.os.Bundle;
@@ -14,12 +17,13 @@ import android.view.MenuItem;
 
 public class ImageEditorActivity extends Activity {
 	
-	ImageEditorView imageEditorView;
-	
 	@Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(imageEditorView = new ImageEditorView(this));
+        setContentView(R.layout.image_editor);
+        Bitmap bm = BitmapFactory.decodeFile(Environment.getExternalStorageDirectory() + "/dress.jpg");
+        getImageEditorView().setBitmap(bm);
+        bm.recycle();
     }
     
     private static final int SAVE_MENU_ITEM_ID = 0;
@@ -37,11 +41,15 @@ public class ImageEditorActivity extends Activity {
 		menu.add(0, ERASE_MENU_ITEM_ID, 3, "erase");
 		return super.onCreateOptionsMenu(menu);
 	}
+    
+    private ImageEditorView getImageEditorView() {
+    	return (ImageEditorView)findViewById(R.id.image_editor_view);
+    }
 
 	@Override
 	public boolean onPrepareOptionsMenu(Menu menu) {
 		MenuItem undoMenuItem = menu.getItem(UNDO_MENU_ITEM_ID);
-		if (imageEditorView.getCommandManager().hasMoreUndo()) {
+		if (getImageEditorView().getCommandManager().hasMoreUndo()) {
 			undoMenuItem.setEnabled(true);
 		} else {
 			undoMenuItem.setEnabled(false);
@@ -58,16 +66,16 @@ public class ImageEditorActivity extends Activity {
 			} catch (FileNotFoundException e) {
 				e.printStackTrace();
 			}
-			imageEditorView.getBitmap().compress(Bitmap.CompressFormat.PNG, 90, out);
+			getImageEditorView().getBitmap().compress(Bitmap.CompressFormat.PNG, 90, out);
 			return true;
 		} else if (item.getItemId() == UNDO_MENU_ITEM_ID) {
-			imageEditorView.undo();
+			getImageEditorView().undo();
 		} else if (item.getItemId() == SELECTION_MENU_ITEM_ID) {
-			imageEditorView.changeTool(new SelectionTool());
+			getImageEditorView().changeTool(new SelectionTool());
 		} else if (item.getItemId() == CROP_MENU_ITEM_ID) {
-			imageEditorView.crop();
+			getImageEditorView().crop();
 		} else if (item.getItemId() == ERASE_MENU_ITEM_ID) {
-			imageEditorView.changeTool(new EraseTool());
+			getImageEditorView().changeTool(new EraseTool());
 		}
 		return super.onOptionsItemSelected(item);
 	}

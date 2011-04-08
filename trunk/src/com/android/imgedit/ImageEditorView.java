@@ -2,7 +2,6 @@ package com.android.imgedit;
 
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.PorterDuff;
@@ -11,33 +10,22 @@ import com.android.imgedit.memento.Memento;
 import com.android.imgedit.memento.MementoOriginator;
 import com.android.imgedit.tool.EraseTool;
 import com.android.imgedit.tool.Tool;
-import android.os.Environment;
+
+import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
 
 public class ImageEditorView extends View implements MementoOriginator<ImageEditorView.ImageEditorViewMemento> {
-	
+
 	private Bitmap  mBitmap;
     private Canvas  mCanvas;
-    private Paint   mBitmapPaint;
+    private Paint   mBitmapPaint = new Paint(Paint.DITHER_FLAG);
     private CommandManager commandManager = new CommandManager(2);
     private Tool currentTool = new EraseTool();
-
-    public ImageEditorView(Context c) {
-        super(c);
-
-        mBitmapPaint = new Paint(Paint.DITHER_FLAG);
-    }
-
-    @Override
-    protected void onSizeChanged(int w, int h, int oldw, int oldh) {
-        super.onSizeChanged(w, h, oldw, oldh);
-        Bitmap bm = BitmapFactory.decodeFile(Environment.getExternalStorageDirectory() + "/dress.jpg");
-        mBitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
-        mCanvas = new Canvas(mBitmap);
-        mCanvas.drawBitmap(bm, 0, 0, null);
-        bm.recycle();
-    }
+    
+    public ImageEditorView(Context context, AttributeSet attrs) {
+		super(context, attrs);
+	}
 
     @Override
     protected void onDraw(Canvas canvas) {
@@ -49,7 +37,9 @@ public class ImageEditorView extends View implements MementoOriginator<ImageEdit
 	}
     
     public void drawBitmap(Canvas canvas) {
-    	canvas.drawBitmap(mBitmap, 0, 0, mBitmapPaint);
+    	if (mBitmap != null) {
+    		canvas.drawBitmap(mBitmap, 0, 0, mBitmapPaint);
+    	}
     }
 
 	@Override
@@ -89,6 +79,11 @@ public class ImageEditorView extends View implements MementoOriginator<ImageEdit
 	}
 	
 	public void redrawBitmap(Bitmap bitmap) {
+		if (mBitmap != null) {
+			mBitmap.recycle();
+		}
+		mBitmap = Bitmap.createBitmap(bitmap.getWidth(), bitmap.getHeight(), Bitmap.Config.ARGB_8888);
+        mCanvas = new Canvas(mBitmap);
 		mCanvas.drawColor(0, PorterDuff.Mode.CLEAR);
 		mCanvas.drawBitmap(bitmap, 0, 0, null);
 	}
