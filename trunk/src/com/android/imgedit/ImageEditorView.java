@@ -3,6 +3,7 @@ package com.android.imgedit;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.PorterDuff;
 import com.android.imgedit.command.CommandManager;
@@ -22,6 +23,7 @@ public class ImageEditorView extends View implements MementoOriginator<ImageEdit
     private Paint   mBitmapPaint = new Paint(Paint.DITHER_FLAG);
     private CommandManager commandManager = new CommandManager(2);
     private Tool currentTool = new EraseTool();
+    private float scale;
     
     public ImageEditorView(Context context, AttributeSet attrs) {
 		super(context, attrs);
@@ -38,7 +40,11 @@ public class ImageEditorView extends View implements MementoOriginator<ImageEdit
     
     public void drawBitmap(Canvas canvas) {
     	if (mBitmap != null) {
-    		canvas.drawBitmap(mBitmap, 0, 0, mBitmapPaint);
+    		Matrix matrix = new Matrix();
+    		matrix.postScale(1/scale, 1/scale);
+    		Bitmap resizedBitmap = Bitmap.createBitmap(mBitmap, 0, 0, mBitmap.getWidth(), mBitmap.getHeight(), matrix, false);
+    		canvas.drawBitmap(resizedBitmap, 0, 0, mBitmapPaint);
+    		resizedBitmap.recycle();
     	}
     }
 
@@ -88,7 +94,16 @@ public class ImageEditorView extends View implements MementoOriginator<ImageEdit
 		mCanvas.drawBitmap(bitmap, 0, 0, null);
 	}
 	
+	public void computeScale(Bitmap bitmap) {
+		scale = Math.max(((float)bitmap.getWidth())/getWidth(), ((float)bitmap.getHeight())/getHeight());
+	}
+	
+	public float orig(float scaledCoord) {
+		return scaledCoord*scale;
+	}
+	
 	public void setBitmap(Bitmap bitmap) {
+		computeScale(bitmap);
 		redrawBitmap(bitmap);
 		invalidate();
 	}

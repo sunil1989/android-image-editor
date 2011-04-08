@@ -12,7 +12,8 @@ public class EraseTool implements Tool {
 	
 	private float mX, mY;
     private static final float TOUCH_TOLERANCE = 4;
-    private Path mPath = new Path();
+    private Path scaledPath = new Path();
+    private Path originalPath = new Path();
     private Paint       mPaint;
 
 	public EraseTool() {
@@ -30,8 +31,10 @@ public class EraseTool implements Tool {
 
 	@Override
 	public void touchStart(ImageEditorView context, float x, float y) {
-		mPath.reset();
-        mPath.moveTo(x, y);
+		scaledPath.reset();
+		originalPath.reset();
+		scaledPath.moveTo(x, y);
+		originalPath.moveTo(context.orig(x), context.orig(y));
         mX = x;
         mY = y;
         context.invalidate();
@@ -42,7 +45,8 @@ public class EraseTool implements Tool {
 		float dx = Math.abs(x - mX);
         float dy = Math.abs(y - mY);
         if (dx >= TOUCH_TOLERANCE || dy >= TOUCH_TOLERANCE) {
-            mPath.quadTo(mX, mY, (x + mX)/2, (y + mY)/2);
+        	scaledPath.quadTo(mX, mY, (x + mX)/2, (y + mY)/2);
+        	originalPath.quadTo(context.orig(mX), context.orig(mY), context.orig((x + mX)/2), context.orig((y + mY)/2));
             mX = x;
             mY = y;
         }
@@ -51,11 +55,13 @@ public class EraseTool implements Tool {
 
 	@Override
 	public void touchUp(ImageEditorView context) {
-		mPath.lineTo(mX, mY);
+		scaledPath.lineTo(mX, mY);
+		originalPath.lineTo(context.orig(mX), context.orig(mY));
         // commit the path to our offscreen
 		context.getCommandManager().executeCommand(new DrawPathCommand(context));
         // kill this so we don't double draw
-        mPath.reset();
+		scaledPath.reset();
+		originalPath.reset();
         context.invalidate();
 	}
 
@@ -65,12 +71,12 @@ public class EraseTool implements Tool {
 
         context.drawBitmap(canvas);
 
-        canvas.drawPath(mPath, mPaint);
+        canvas.drawPath(scaledPath, mPaint);
 	}
 	
 	@Override
 	public void drawPath(ImageEditorView context) {
-    	context.getCanvas().drawPath(mPath, mPaint);
+    	context.getCanvas().drawPath(originalPath, mPaint);
     }
 
 	@Override
