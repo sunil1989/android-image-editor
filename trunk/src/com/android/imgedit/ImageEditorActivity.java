@@ -5,6 +5,7 @@ import java.io.FileOutputStream;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -67,6 +68,7 @@ public class ImageEditorActivity extends Activity {
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
+		ImageEditorView imageEditorView = getImageEditorView();
 		if (item.getItemId() == SAVE_MENU_ITEM_ID) {
 			FileOutputStream out = null;
 			try {
@@ -74,16 +76,16 @@ public class ImageEditorActivity extends Activity {
 			} catch (FileNotFoundException e) {
 				e.printStackTrace();
 			}
-			getImageEditorView().getBitmap().compress(Bitmap.CompressFormat.PNG, 90, out);
+			imageEditorView.getBitmap().compress(Bitmap.CompressFormat.PNG, 90, out);
 			return true;
 		} else if (item.getItemId() == UNDO_MENU_ITEM_ID) {
-			getImageEditorView().undo();
+			imageEditorView.undo();
 		} else if (item.getItemId() == SELECTION_MENU_ITEM_ID) {
-			getImageEditorView().changeTool(new SelectionTool());
+			imageEditorView.changeTool(new SelectionTool());
 		} else if (item.getItemId() == CROP_MENU_ITEM_ID) {
-			getImageEditorView().crop();
+			imageEditorView.crop();
 		} else if (item.getItemId() == ERASE_MENU_ITEM_ID) {
-			getImageEditorView().changeTool(new EraseTool());
+			imageEditorView.changeTool(new EraseTool(imageEditorView));
 		} else if (item.getItemId() == OPEN_MENU_ITEM_ID) {
 			Intent intent = new Intent();
             intent.setType("image/*");
@@ -142,5 +144,10 @@ public class ImageEditorActivity extends Activity {
         }
         else return null;
     }
+
+	@Override
+	public void onConfigurationChanged(Configuration newConfig) {
+		super.onConfigurationChanged(newConfig);
+	}
 
 }
