@@ -12,21 +12,29 @@ public class EraseTool implements Tool {
 	
 	private float mX, mY;
     private static final float TOUCH_TOLERANCE = 4;
+    private static final float DEFAULT_ORIGINAL_STROKE_WIDTH = 12;
     private Path scaledPath = new Path();
     private Path originalPath = new Path();
-    private Paint       mPaint;
+    private Paint originalPaint;
+    private Paint scaledPaint;
 
-	public EraseTool() {
-		mPaint = new Paint();
-        mPaint.setAntiAlias(true);
-        mPaint.setDither(true);
-        mPaint.setColor(0xFFFF0000);
-        mPaint.setStyle(Paint.Style.STROKE);
-        mPaint.setStrokeJoin(Paint.Join.ROUND);
-        mPaint.setStrokeCap(Paint.Cap.ROUND);
-        mPaint.setStrokeWidth(12);
-        mPaint.setXfermode(new PorterDuffXfermode(
+	public EraseTool(ImageEditorView context) {
+		originalPaint = createPaint(DEFAULT_ORIGINAL_STROKE_WIDTH);
+		scaledPaint = createPaint(context.scaled(DEFAULT_ORIGINAL_STROKE_WIDTH));
+	}
+	
+	private Paint createPaint(float strokeWidth) {
+		Paint paint = new Paint();
+		paint.setAntiAlias(true);
+		paint.setDither(true);
+		paint.setColor(0xFFFF0000);
+		paint.setStyle(Paint.Style.STROKE);
+		paint.setStrokeJoin(Paint.Join.ROUND);
+		paint.setStrokeCap(Paint.Cap.ROUND);
+		paint.setStrokeWidth(strokeWidth);
+		paint.setXfermode(new PorterDuffXfermode(
                 PorterDuff.Mode.CLEAR));
+        return paint;
 	}
 
 	@Override
@@ -71,12 +79,12 @@ public class EraseTool implements Tool {
 
         context.drawBitmap(canvas);
 
-        canvas.drawPath(scaledPath, mPaint);
+        canvas.drawPath(scaledPath, scaledPaint);
 	}
 	
 	@Override
 	public void drawPath(ImageEditorView context) {
-    	context.getCanvas().drawPath(originalPath, mPaint);
+    	context.getCanvas().drawPath(originalPath, originalPaint);
     }
 
 	@Override

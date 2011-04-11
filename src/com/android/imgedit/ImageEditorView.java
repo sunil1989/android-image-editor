@@ -22,7 +22,7 @@ public class ImageEditorView extends View implements MementoOriginator<ImageEdit
     private Canvas  mCanvas;
     private Paint   mBitmapPaint = new Paint(Paint.DITHER_FLAG);
     private CommandManager commandManager = new CommandManager(2);
-    private Tool currentTool = new EraseTool();
+    private Tool currentTool = new EraseTool(this);
     private float scale;
     
     public ImageEditorView(Context context, AttributeSet attrs) {
@@ -85,25 +85,34 @@ public class ImageEditorView extends View implements MementoOriginator<ImageEdit
 	}
 	
 	public void redrawBitmap(Bitmap bitmap) {
+		Bitmap newBitmap;
+		if (bitmap.getWidth() > bitmap.getHeight()) {
+			Matrix matrix = new Matrix();
+			matrix.postRotate(90);
+			newBitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
+		} else {
+			newBitmap = bitmap;
+		}
+		scale = Math.max(((float)newBitmap.getWidth())/getWidth(), ((float)newBitmap.getHeight())/getHeight());
 		if (mBitmap != null) {
 			mBitmap.recycle();
 		}
-		mBitmap = Bitmap.createBitmap(bitmap.getWidth(), bitmap.getHeight(), Bitmap.Config.ARGB_8888);
+		mBitmap = Bitmap.createBitmap(newBitmap.getWidth(), newBitmap.getHeight(), Bitmap.Config.ARGB_8888);
         mCanvas = new Canvas(mBitmap);
 		mCanvas.drawColor(0, PorterDuff.Mode.CLEAR);
-		mCanvas.drawBitmap(bitmap, 0, 0, null);
-	}
-	
-	public void computeScale(Bitmap bitmap) {
-		scale = Math.max(((float)bitmap.getWidth())/getWidth(), ((float)bitmap.getHeight())/getHeight());
+		mCanvas.drawBitmap(newBitmap, 0, 0, null);
+		newBitmap.recycle();
 	}
 	
 	public float orig(float scaledCoord) {
 		return scaledCoord*scale;
 	}
 	
+	public float scaled(float originalCoord) {
+		return originalCoord/scale;
+	}
+	
 	public void setBitmap(Bitmap bitmap) {
-		computeScale(bitmap);
 		redrawBitmap(bitmap);
 		invalidate();
 	}
