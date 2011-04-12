@@ -1,7 +1,8 @@
-package com.android.imgedit.tool;
+package com.android.image.edit.tool;
 
 import android.graphics.Canvas;
-import com.android.imgedit.ImageEditorView;
+
+import com.android.image.edit.ImageEditorView;
 
 public interface Tool {
 	

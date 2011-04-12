@@ -1,16 +1,17 @@
-package com.android.imgedit;
+package com.android.image.edit;
 
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.graphics.Paint;
-import android.graphics.PorterDuff;
-import com.android.imgedit.command.CommandManager;
-import com.android.imgedit.memento.Memento;
-import com.android.imgedit.memento.MementoOriginator;
-import com.android.imgedit.tool.EraseTool;
-import com.android.imgedit.tool.Tool;
+import android.graphics.RectF;
+
+import com.android.image.edit.command.CommandManager;
+import com.android.image.edit.memento.Memento;
+import com.android.image.edit.memento.MementoOriginator;
+import com.android.image.edit.tool.EraseTool;
+import com.android.image.edit.tool.Tool;
 
 import android.util.AttributeSet;
 import android.view.MotionEvent;
@@ -23,7 +24,8 @@ public class ImageEditorView extends View implements MementoOriginator<ImageEdit
     private Paint   mBitmapPaint = new Paint(Paint.DITHER_FLAG);
     private CommandManager commandManager = new CommandManager(2);
     private Tool currentTool = new EraseTool(this);
-    private float scale;
+    private Matrix transform = new Matrix();
+    private Matrix inverse = new Matrix();
     
     public ImageEditorView(Context context, AttributeSet attrs) {
 		super(context, attrs);
@@ -38,13 +40,11 @@ public class ImageEditorView extends View implements MementoOriginator<ImageEdit
 		return commandManager;
 	}
     
-    public void drawBitmap(Canvas canvas) {
+    public void drawTransformedBitmap(Canvas canvas) {
     	if (mBitmap != null) {
-    		Matrix matrix = new Matrix();
-    		matrix.postScale(1/scale, 1/scale);
-    		Bitmap resizedBitmap = Bitmap.createBitmap(mBitmap, 0, 0, mBitmap.getWidth(), mBitmap.getHeight(), matrix, false);
-    		canvas.drawBitmap(resizedBitmap, 0, 0, mBitmapPaint);
-    		resizedBitmap.recycle();
+    		Bitmap transformedBitmap = Bitmap.createBitmap(mBitmap, 0, 0, mBitmap.getWidth(), mBitmap.getHeight(), transform, false);
+    		canvas.drawBitmap(transformedBitmap, 0, 0, mBitmapPaint);
+    		transformedBitmap.recycle();
     	}
     }
 
@@ -85,31 +85,44 @@ public class ImageEditorView extends View implements MementoOriginator<ImageEdit
 	}
 	
 	public void redrawBitmap(Bitmap bitmap) {
-		Bitmap newBitmap;
+		transform.reset();
 		if (bitmap.getWidth() > bitmap.getHeight()) {
-			Matrix matrix = new Matrix();
-			matrix.postRotate(90);
-			newBitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
-		} else {
-			newBitmap = bitmap;
+			transform.postRotate(90);
+			transform.postTranslate(bitmap.getHeight(), 0);
 		}
-		scale = Math.max(((float)newBitmap.getWidth())/getWidth(), ((float)newBitmap.getHeight())/getHeight());
+		float bitmapWidth = Math.min(bitmap.getWidth(), bitmap.getHeight());
+		float bitmapHeight = Math.max(bitmap.getWidth(), bitmap.getHeight());
+		float scale = Math.min(getWidth()/bitmapWidth, getHeight()/bitmapHeight);
+		transform.postScale(scale, scale);
+		transform.invert(inverse);
 		if (mBitmap != null) {
 			mBitmap.recycle();
 		}
-		mBitmap = Bitmap.createBitmap(newBitmap.getWidth(), newBitmap.getHeight(), Bitmap.Config.ARGB_8888);
+		mBitmap = Bitmap.createBitmap(bitmap.getWidth(), bitmap.getHeight(), Bitmap.Config.ARGB_8888);
         mCanvas = new Canvas(mBitmap);
-		mCanvas.drawColor(0, PorterDuff.Mode.CLEAR);
-		mCanvas.drawBitmap(newBitmap, 0, 0, null);
-		newBitmap.recycle();
+		mCanvas.drawBitmap(bitmap, 0, 0, null);
 	}
 	
-	public float orig(float scaledCoord) {
-		return scaledCoord*scale;
+	public float[] getOriginalPoints(float... transformCoord) {
+		float[] result = new float[transformCoord.length];
+		inverse.mapPoints(result, transformCoord);
+		return result;
 	}
 	
-	public float scaled(float originalCoord) {
-		return originalCoord/scale;
+	public float[] getTransformedPoint(float originalX, float originalY) {
+		float[] result = new float[2];
+		transform.mapPoints(result, new float[]{originalX, originalY});
+		return result;
+	}
+	
+	public float getTransformedRadius(float originalRadius) {
+		return transform.mapRadius(originalRadius);
+	}
+	
+	public RectF getOriginalRect(RectF transformedRect) {
+		RectF result = new RectF();
+		inverse.mapRect(result, transformedRect);
+		return result;
 	}
 	
 	public void setBitmap(Bitmap bitmap) {

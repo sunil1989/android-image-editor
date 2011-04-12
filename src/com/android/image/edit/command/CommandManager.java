@@ -1,6 +1,6 @@
-package com.android.imgedit.command;
+package com.android.image.edit.command;
 
-import com.android.imgedit.util.LimitedSizeStack;
+import com.android.image.edit.util.LimitedSizeStack;
 
 public class CommandManager {
 	

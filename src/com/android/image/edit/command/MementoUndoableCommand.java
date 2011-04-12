@@ -1,7 +1,7 @@
-package com.android.imgedit.command;
+package com.android.image.edit.command;
 
-import com.android.imgedit.memento.Memento;
-import com.android.imgedit.memento.MementoOriginator;
+import com.android.image.edit.memento.Memento;
+import com.android.image.edit.memento.MementoOriginator;
 
 public abstract class MementoUndoableCommand<P, M extends Memento, O extends MementoOriginator<M>> implements UndoableCommand<P> {
 	

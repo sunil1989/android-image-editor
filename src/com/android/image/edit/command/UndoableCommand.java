@@ -1,4 +1,4 @@
-package com.android.imgedit.command;
+package com.android.image.edit.command;
 
 public interface UndoableCommand<P> extends Command<P> {
 	
