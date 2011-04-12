@@ -1,9 +1,10 @@
-package com.android.imgedit.command;
+package com.android.image.edit.command;
 
 import android.graphics.Bitmap;
 import android.graphics.RectF;
-import com.android.imgedit.ImageEditorView;
-import com.android.imgedit.ImageEditorView.ImageEditorViewMemento;
+
+import com.android.image.edit.ImageEditorView;
+import com.android.image.edit.ImageEditorView.ImageEditorViewMemento;
 
 public class CropCommand extends MementoUndoableCommand<RectF, ImageEditorViewMemento, ImageEditorView> {
 

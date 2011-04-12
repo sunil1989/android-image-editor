@@ -1,7 +1,7 @@
-package com.android.imgedit.command;
+package com.android.image.edit.command;
 
-import com.android.imgedit.ImageEditorView;
-import com.android.imgedit.ImageEditorView.ImageEditorViewMemento;
+import com.android.image.edit.ImageEditorView;
+import com.android.image.edit.ImageEditorView.ImageEditorViewMemento;
 
 public class DrawPathCommand extends MementoUndoableCommand<Object, ImageEditorViewMemento, ImageEditorView> {
 

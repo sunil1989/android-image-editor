@@ -1,4 +1,4 @@
-package com.android.imgedit.util;
+package com.android.image.edit.util;
 
 import java.util.LinkedList;
 
