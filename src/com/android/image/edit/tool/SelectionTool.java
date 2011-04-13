@@ -4,6 +4,7 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.RectF;
 import android.graphics.Paint.Style;
+import android.view.MotionEvent;
 
 import com.android.image.edit.ImageEditorView;
 import com.android.image.edit.command.CropCommand;
@@ -20,19 +21,21 @@ public class SelectionTool implements Tool {
 	}
 	
 	@Override
-	public void touchStart(ImageEditorView context, float x, float y) {
+	public void touchStart(ImageEditorView context, MotionEvent event) {
 		clearSelection();
-		startX = x;
-		startY = y;
+		startX = event.getX();
+		startY = event.getY();
 		context.invalidate();
 	}
 
 	@Override
-	public void touchMove(ImageEditorView context, float x, float y) {
-		float left = Math.min(startX, x);
-		float top = Math.min(startY, y);
-		float right = Math.max(startX, x);
-		float bottom = Math.max(startY, y);
+	public void touchMove(ImageEditorView context, MotionEvent event) {
+		float x = event.getX(),
+		y = event.getY(),
+		left = Math.min(startX, x),
+		top = Math.min(startY, y),
+		right = Math.max(startX, x),
+		bottom = Math.max(startY, y);
 		selection = new RectF(left, top, right, bottom);
 		context.invalidate();
 	}
@@ -44,10 +47,6 @@ public class SelectionTool implements Tool {
 
 	@Override
 	public void onDraw(ImageEditorView context, Canvas canvas) {
-		canvas.drawColor(0xFFAAAAAA);
-
-        context.drawTransformedBitmap(canvas);
-        
         if (selection != null) {
         	canvas.drawRect(selection, mPaint);
         }

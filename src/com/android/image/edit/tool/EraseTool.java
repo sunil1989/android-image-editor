@@ -5,6 +5,7 @@ import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
+import android.view.MotionEvent;
 
 import com.android.image.edit.ImageEditorView;
 import com.android.image.edit.command.DrawPathCommand;
@@ -39,7 +40,9 @@ public class EraseTool implements Tool {
 	}
 
 	@Override
-	public void touchStart(ImageEditorView context, float x, float y) {
+	public void touchStart(ImageEditorView context, MotionEvent event) {
+		float x = event.getX(),
+		y = event.getY();
 		transformedPath.reset();
 		originalPath.reset();
 		transformedPath.moveTo(x, y);
@@ -51,9 +54,11 @@ public class EraseTool implements Tool {
 	}
 
 	@Override
-	public void touchMove(ImageEditorView context, float x, float y) {
-		float dx = Math.abs(x - mX);
-        float dy = Math.abs(y - mY);
+	public void touchMove(ImageEditorView context, MotionEvent event) {
+		float x = event.getX(),
+		y = event.getY(),
+		dx = Math.abs(x - mX),
+        dy = Math.abs(y - mY);
         if (dx >= TOUCH_TOLERANCE || dy >= TOUCH_TOLERANCE) {
         	transformedPath.quadTo(mX, mY, (x + mX)/2, (y + mY)/2);
         	float[] orig = context.getOriginalPoints(mX, mY, (x + mX)/2, (y + mY)/2);
@@ -79,12 +84,10 @@ public class EraseTool implements Tool {
 
 	@Override
 	public void onDraw(ImageEditorView context, Canvas canvas) {
-		canvas.drawColor(0xFFAAAAAA);
-
-        context.drawTransformedBitmap(canvas);
-        
         transformedPaint.setStrokeWidth(context.getTransformedRadius(DEFAULT_ORIGINAL_STROKE_WIDTH));
-        canvas.drawPath(transformedPath, transformedPaint);
+        if (!transformedPath.isEmpty()) {
+        	canvas.drawPath(transformedPath, transformedPaint);
+        }
 	}
 	
 	@Override
