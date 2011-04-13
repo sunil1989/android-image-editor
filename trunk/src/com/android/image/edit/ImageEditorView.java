@@ -23,6 +23,7 @@ import android.view.View;
 public class ImageEditorView extends View implements MementoOriginator<ImageEditorView.ImageEditorViewMemento> {
 
 	private Bitmap  mBitmap;
+	private Bitmap transformedBitmap;
     private Canvas  mCanvas = new Canvas();
     private Paint   mBitmapPaint = new Paint(Paint.DITHER_FLAG);
     private CommandManager commandManager = new CommandManager(2);
@@ -63,17 +64,29 @@ public class ImageEditorView extends View implements MementoOriginator<ImageEdit
 
 	private void drawTransformedBitmap(Canvas canvas) {
     	if (mBitmap != null) {
-    		Bitmap transformedBitmap = Bitmap.createBitmap(mBitmap, 0, 0, mBitmap.getWidth(), mBitmap.getHeight(), transform, false);
+    		//Bitmap transformedBitmap = Bitmap.createBitmap(mBitmap, 0, 0, mBitmap.getWidth(), mBitmap.getHeight(), transform, false);
     		imageScrollState.drawBitmap(canvas, transformedBitmap, mBitmapPaint, getWidth(), getHeight());
-    		transformedBitmap.recycle();
+    		//transformedBitmap.recycle();
     	}
     }
 	
-	public void changeImageTransformStrategy(ImageTransformStrategy imageTransformStrategy) {
-		this.imageTransformStrategy = imageTransformStrategy;
+	private void resetTransformAndScrollState() {
 		boolean imageFitToView = imageTransformStrategy.prepareTransformAndCheckFit(transform, mBitmap.getWidth(), mBitmap.getHeight(), getWidth(), getHeight());
 		transform.invert(inverse);
 		imageScrollState = ImageScrollStateFactory.getInstance().createImageScrollState(imageFitToView);
+		createTransformedBitmap();
+	}
+	
+	private void createTransformedBitmap() {
+		if (transformedBitmap != null) {
+			transformedBitmap.recycle();
+		}
+		transformedBitmap = Bitmap.createBitmap(mBitmap, 0, 0, mBitmap.getWidth(), mBitmap.getHeight(), transform, false);
+	}
+	
+	public void changeImageTransformStrategy(ImageTransformStrategy imageTransformStrategy) {
+		this.imageTransformStrategy = imageTransformStrategy;
+		resetTransformAndScrollState();
 		invalidate();
 	}
 
@@ -115,15 +128,16 @@ public class ImageEditorView extends View implements MementoOriginator<ImageEdit
 	}
 	
 	public void drawBitmap(Bitmap bitmap) {
-		boolean imageFitToView = imageTransformStrategy.prepareTransformAndCheckFit(transform, bitmap.getWidth(), bitmap.getHeight(), getWidth(), getHeight());
+		/*boolean imageFitToView = imageTransformStrategy.prepareTransformAndCheckFit(transform, bitmap.getWidth(), bitmap.getHeight(), getWidth(), getHeight());
 		transform.invert(inverse);
-		imageScrollState = ImageScrollStateFactory.getInstance().createImageScrollState(imageFitToView);
+		imageScrollState = ImageScrollStateFactory.getInstance().createImageScrollState(imageFitToView);*/
 		if (mBitmap != null) {
 			mBitmap.recycle();
 		}
 		mBitmap = Bitmap.createBitmap(bitmap.getWidth(), bitmap.getHeight(), Bitmap.Config.ARGB_8888);
 		mCanvas.setBitmap(mBitmap);
 		mCanvas.drawBitmap(bitmap, 0, 0, null);
+		resetTransformAndScrollState();
 	}
 	
 	public float[] getOriginalPoints(float... transformCoord) {
