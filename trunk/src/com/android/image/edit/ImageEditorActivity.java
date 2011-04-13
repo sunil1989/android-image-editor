@@ -11,10 +11,10 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 
 import com.android.image.edit.tool.EraseTool;
+import com.android.image.edit.tool.ScrollTool;
 import com.android.image.edit.tool.SelectionTool;
-import com.android.imgedit.R;
-import com.android.imgedit.R.id;
-import com.android.imgedit.R.layout;
+import com.android.image.edit.transform.ImageTransformStrategy;
+import com.android.image.edit.R;
 
 
 import android.net.Uri;
@@ -31,6 +31,9 @@ public class ImageEditorActivity extends Activity {
     private static final int CROP_MENU_ITEM_ID = 4;
     private static final int ERASE_MENU_ITEM_ID = 5;
     private static final int OPEN_MENU_ITEM_ID = 6;
+    private static final int SCROLL_MENU_ITEM_ID = 7;
+    private static final int FIT_TO_SCREEN_ITEM_ID = 8;
+    private static final int ORIGINAL_SIZE_ITEM_ID = 9;
     
     private static final int SELECT_PICTURE_REQUEST_CODE = 0;
 	
@@ -50,6 +53,9 @@ public class ImageEditorActivity extends Activity {
 		menu.add(0, SELECTION_MENU_ITEM_ID, Menu.NONE, "selection");
 		menu.add(0, CROP_MENU_ITEM_ID, Menu.NONE, "crop");
 		menu.add(0, ERASE_MENU_ITEM_ID, Menu.NONE, "erase");
+		menu.add(0, SCROLL_MENU_ITEM_ID, Menu.NONE, "scroll");
+		menu.add(0, FIT_TO_SCREEN_ITEM_ID, Menu.NONE, "fit to screen");
+		menu.add(0, ORIGINAL_SIZE_ITEM_ID, Menu.NONE, "originalSize");
 		return super.onCreateOptionsMenu(menu);
 	}
     
@@ -94,6 +100,12 @@ public class ImageEditorActivity extends Activity {
             intent.setAction(Intent.ACTION_GET_CONTENT);
             startActivityForResult(Intent.createChooser(intent,
                     "Select Picture"), SELECT_PICTURE_REQUEST_CODE);
+		} else if (item.getItemId() == SCROLL_MENU_ITEM_ID) {
+			imageEditorView.changeTool(new ScrollTool());
+		} else if (item.getItemId() == FIT_TO_SCREEN_ITEM_ID) {
+			imageEditorView.changeImageTransformStrategy(ImageTransformStrategy.FIT_TO_SCREEN_SIZE);
+		} else if (item.getItemId() == ORIGINAL_SIZE_ITEM_ID) {
+			imageEditorView.changeImageTransformStrategy(ImageTransformStrategy.ORIGINAL_SIZE);
 		}
 		return super.onOptionsItemSelected(item);
 	}
