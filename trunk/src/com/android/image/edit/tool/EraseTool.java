@@ -77,7 +77,7 @@ public class EraseTool implements Tool {
         // commit the path to our offscreen
 		context.getCommandManager().executeCommand(new DrawPathCommand(context));
         // kill this so we don't double draw
-		//transformedPath.reset();
+		transformedPath.reset();
 		originalPath.reset();
         context.invalidate();
 	}
@@ -92,7 +92,9 @@ public class EraseTool implements Tool {
 	
 	@Override
 	public void drawPath(ImageEditorView context) {
+		transformedPaint.setStrokeWidth(context.getTransformedRadius(DEFAULT_ORIGINAL_STROKE_WIDTH));
     	context.getCanvas().drawPath(originalPath, originalPaint);
+    	context.getTransformedCanvas().drawPath(transformedPath, transformedPaint);
     }
 
 	@Override
