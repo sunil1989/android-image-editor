@@ -77,7 +77,7 @@ public class EraseTool implements Tool {
         // commit the path to our offscreen
 		context.getCommandManager().executeCommand(new DrawPathCommand(context));
         // kill this so we don't double draw
-		transformedPath.reset();
+		//transformedPath.reset();
 		originalPath.reset();
         context.invalidate();
 	}
