@@ -25,6 +25,7 @@ public class ImageEditorView extends View implements MementoOriginator<ImageEdit
 	private Bitmap  mBitmap;
 	private Bitmap transformedBitmap;
     private Canvas  mCanvas = new Canvas();
+    private Canvas transformedCanvas = new Canvas();
     private Paint   mBitmapPaint = new Paint(Paint.DITHER_FLAG);
     private CommandManager commandManager = new CommandManager(2);
     private Tool currentTool = new EraseTool(this);
@@ -74,14 +75,15 @@ public class ImageEditorView extends View implements MementoOriginator<ImageEdit
 		boolean imageFitToView = imageTransformStrategy.prepareTransformAndCheckFit(transform, mBitmap.getWidth(), mBitmap.getHeight(), getWidth(), getHeight());
 		transform.invert(inverse);
 		imageScrollState = ImageScrollStateFactory.getInstance().createImageScrollState(imageFitToView);
-		createTransformedBitmap();
+		updateTransformedBitmap();
 	}
 	
-	private void createTransformedBitmap() {
+	private void updateTransformedBitmap() {
 		if (transformedBitmap != null) {
 			transformedBitmap.recycle();
 		}
 		transformedBitmap = Bitmap.createBitmap(mBitmap, 0, 0, mBitmap.getWidth(), mBitmap.getHeight(), transform, false);
+		transformedCanvas.setBitmap(transformedBitmap);
 	}
 	
 	public void changeImageTransformStrategy(ImageTransformStrategy imageTransformStrategy) {
@@ -112,6 +114,10 @@ public class ImageEditorView extends View implements MementoOriginator<ImageEdit
 	
     public Canvas getCanvas() {
 		return mCanvas;
+	}
+
+	public Canvas getTransformedCanvas() {
+		return transformedCanvas;
 	}
 
 	public Tool getCurrentTool() {
