@@ -21,6 +21,7 @@ public enum ImageTransformStrategy {
 		}
 		
 	},
+	
 	FIT_TO_SCREEN_SIZE {
 
 		@Override

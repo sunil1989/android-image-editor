@@ -10,9 +10,9 @@ import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 
+import com.android.image.edit.tool.EditRectSelectionTool;
 import com.android.image.edit.tool.EraseTool;
 import com.android.image.edit.tool.ScrollTool;
-import com.android.image.edit.tool.SelectionTool;
 import com.android.image.edit.transform.ImageTransformStrategy;
 import com.android.image.edit.R;
 
@@ -22,6 +22,9 @@ import android.os.Bundle;
 import android.provider.MediaStore;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 
 public class ImageEditorActivity extends Activity {
 	
@@ -42,7 +45,57 @@ public class ImageEditorActivity extends Activity {
 	@Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        requestWindowFeature(Window.FEATURE_NO_TITLE);
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, 
+                                WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.image_editor);
+        final ImageEditorView imageEditorView = getImageEditorView();
+        final View toolsFooter = findViewById(R.id.tools_footer);
+        final View cropFooter = findViewById(R.id.crop_footer);
+        findViewById(R.id.view).setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				imageEditorView.changeTool(new ScrollTool());
+			}
+		});
+        findViewById(R.id.erase).setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				imageEditorView.changeTool(new EraseTool(imageEditorView));
+			}
+		});
+        findViewById(R.id.crop).setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				imageEditorView.changeTool(new EditRectSelectionTool(imageEditorView));
+				toolsFooter.setVisibility(View.GONE);
+				cropFooter.setVisibility(View.VISIBLE);
+			}
+		});
+        findViewById(R.id.undo).setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				imageEditorView.undo();
+			}
+		});
+        findViewById(R.id.ok).setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				imageEditorView.crop();
+				imageEditorView.changeTool(new ScrollTool());
+				toolsFooter.setVisibility(View.VISIBLE);
+				cropFooter.setVisibility(View.GONE);
+			}
+		});
+        findViewById(R.id.cancel).setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				imageEditorView.changeTool(new ScrollTool());
+				imageEditorView.invalidate();
+				toolsFooter.setVisibility(View.VISIBLE);
+				cropFooter.setVisibility(View.GONE);
+			}
+		});
     }
     
     @Override
@@ -89,7 +142,7 @@ public class ImageEditorActivity extends Activity {
 		} else if (item.getItemId() == UNDO_MENU_ITEM_ID) {
 			imageEditorView.undo();
 		} else if (item.getItemId() == SELECTION_MENU_ITEM_ID) {
-			imageEditorView.changeTool(new SelectionTool());
+			imageEditorView.changeTool(new EditRectSelectionTool(imageEditorView));
 		} else if (item.getItemId() == CROP_MENU_ITEM_ID) {
 			imageEditorView.crop();
 		} else if (item.getItemId() == ERASE_MENU_ITEM_ID) {

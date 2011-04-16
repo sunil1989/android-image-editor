@@ -1,4 +1,47 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.android.image.edit.ImageEditorView xmlns:android="http://schemas.android.com/apk/res/android"
-	android:id="@+id/image_editor_view"
-	android:layout_width="fill_parent" android:layout_height="fill_parent"/>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="fill_parent" android:layout_height="fill_parent"
+	android:orientation="vertical">
+	<com.android.image.edit.ImageEditorView 
+		android:id="@+id/image_editor_view"
+		android:layout_width="fill_parent" android:layout_height="fill_parent" android:layout_weight="1"/>
+	<LinearLayout android:id="@+id/tools_footer"
+		android:layout_width="fill_parent" android:layout_height="68dip"
+		android:layout_weight="1">
+		<ImageView android:id="@+id/view"
+			android:src="@drawable/qa_gallery"
+			android:clickable="true"
+			android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+		<ImageView android:id="@+id/zoom"
+			android:src="@drawable/qa_camera"
+			android:clickable="true"
+			android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+		<ImageView android:id="@+id/erase"
+			android:src="@drawable/qa_trash"
+			android:clickable="true"
+			android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+		<ImageView android:id="@+id/crop"
+			android:src="@drawable/qa_view_post"
+			android:clickable="true"
+			android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+		<ImageView android:id="@+id/undo"
+			android:src="@drawable/qa_reply_comment"
+			android:clickable="true"
+			android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+	</LinearLayout>
+	<RelativeLayout android:id="@+id/crop_footer"
+		android:layout_width="fill_parent" android:layout_height="68dip"
+		android:layout_weight="1"
+		android:visibility="gone">
+		<ImageView android:id="@+id/ok"
+			android:src="@drawable/ic_menu_topics"
+			android:clickable="true"
+			android:layout_width="wrap_content" android:layout_height="wrap_content"
+			android:layout_alignParentRight="true"/>
+		<ImageView android:id="@+id/cancel"
+			android:src="@drawable/ic_menu_close_clear_cancel"
+			android:clickable="true"
+			android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+	</RelativeLayout>
+</LinearLayout>
+
