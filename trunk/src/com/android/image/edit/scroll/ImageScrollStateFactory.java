@@ -15,7 +15,7 @@ public class ImageScrollStateFactory {
 
 	public ImageScrollState createImageScrollState(boolean imageFitToView) {
 		if (imageFitToView) {
-			return ImageNoScrollState.getInstance();
+			return new ImageNoScrollState();
 		} else {
 			return new ImageScrollPresentState();
 		}

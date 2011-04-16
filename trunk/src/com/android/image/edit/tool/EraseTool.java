@@ -14,38 +14,47 @@ public class EraseTool implements Tool {
 	
 	private float mX, mY;
     private static final float TOUCH_TOLERANCE = 4;
-    private static final float DEFAULT_ORIGINAL_STROKE_WIDTH = 12;
-    private Path transformedPath = new Path();
+    private static final float DEFAULT_TRANSFORMED_STROKE_WIDTH = 15;
+    private Path screenPath = new Path();
     private Path originalPath = new Path();
     private Paint originalPaint;
-    private Paint transformedPaint;
+    //private Paint transformedPaint;
+    private Paint transformedTempPaint;
 
 	public EraseTool(ImageEditorView context) {
-		originalPaint = createPaint();
-		originalPaint.setStrokeWidth(DEFAULT_ORIGINAL_STROKE_WIDTH);
-		transformedPaint = createPaint();
+		originalPaint = createPaint(0xFFFF0000, true);
+		//transformedPaint = createPaint(0xFFFF0000, true, DEFAULT_TRANSFORMED_STROKE_WIDTH);
+		transformedTempPaint = createPaint(ImageEditorView.BACKGROUND_COLOR, false, DEFAULT_TRANSFORMED_STROKE_WIDTH);
 	}
 	
-	private Paint createPaint() {
+	private Paint createPaint(int color, boolean clear) {
 		Paint paint = new Paint();
 		paint.setAntiAlias(true);
 		paint.setDither(true);
-		paint.setColor(0xFFFF0000);
+		paint.setColor(color);
 		paint.setStyle(Paint.Style.STROKE);
 		paint.setStrokeJoin(Paint.Join.ROUND);
 		paint.setStrokeCap(Paint.Cap.ROUND);
-		paint.setXfermode(new PorterDuffXfermode(
-                PorterDuff.Mode.CLEAR));
+		if (clear) {
+			paint.setXfermode(new PorterDuffXfermode(
+					PorterDuff.Mode.CLEAR));
+		}
         return paint;
+	}
+	
+	private Paint createPaint(int color, boolean clear, float strokeWidth) {
+		Paint paint = createPaint(color, clear);
+		paint.setStrokeWidth(strokeWidth);
+		return paint;
 	}
 
 	@Override
 	public void touchStart(ImageEditorView context, MotionEvent event) {
 		float x = event.getX(),
 		y = event.getY();
-		transformedPath.reset();
+		screenPath.reset();
 		originalPath.reset();
-		transformedPath.moveTo(x, y);
+		screenPath.moveTo(x, y);
 		float[] orig = context.getOriginalPoints(x, y);
 		originalPath.moveTo(orig[0], orig[1]);
         mX = x;
@@ -60,7 +69,7 @@ public class EraseTool implements Tool {
 		dx = Math.abs(x - mX),
         dy = Math.abs(y - mY);
         if (dx >= TOUCH_TOLERANCE || dy >= TOUCH_TOLERANCE) {
-        	transformedPath.quadTo(mX, mY, (x + mX)/2, (y + mY)/2);
+        	screenPath.quadTo(mX, mY, (x + mX)/2, (y + mY)/2);
         	float[] orig = context.getOriginalPoints(mX, mY, (x + mX)/2, (y + mY)/2);
         	originalPath.quadTo(orig[0], orig[1], orig[2], orig[3]);
             mX = x;
@@ -71,30 +80,34 @@ public class EraseTool implements Tool {
 
 	@Override
 	public void touchUp(ImageEditorView context) {
-		transformedPath.lineTo(mX, mY);
+		screenPath.lineTo(mX, mY);
 		float[] orig = context.getOriginalPoints(mX, mY);
 		originalPath.lineTo(orig[0], orig[1]);
+		screenPath.reset();
         // commit the path to our offscreen
 		context.getCommandManager().executeCommand(new DrawPathCommand(context));
         // kill this so we don't double draw
-		transformedPath.reset();
 		originalPath.reset();
         context.invalidate();
 	}
 
 	@Override
 	public void onDraw(ImageEditorView context, Canvas canvas) {
-        transformedPaint.setStrokeWidth(context.getTransformedRadius(DEFAULT_ORIGINAL_STROKE_WIDTH));
-        if (!transformedPath.isEmpty()) {
-        	canvas.drawPath(transformedPath, transformedPaint);
+        if (!screenPath.isEmpty()) {
+        	canvas.drawPath(screenPath, transformedTempPaint);
         }
 	}
 	
 	@Override
 	public void drawPath(ImageEditorView context) {
-		transformedPaint.setStrokeWidth(context.getTransformedRadius(DEFAULT_ORIGINAL_STROKE_WIDTH));
+		originalPaint.setStrokeWidth(context.getOriginalRadius(DEFAULT_TRANSFORMED_STROKE_WIDTH));
     	context.getCanvas().drawPath(originalPath, originalPaint);
-    	context.getTransformedCanvas().drawPath(transformedPath, transformedPaint);
+    	//Path transformedPath = new Path();
+    	//screenPath.transform(context.getTranslate(), transformedPath);
+    	//context.getTransformedCanvas().drawPath(transformedPath, transformedPaint);
+    	//context.getTransformedCanvas().drawPath(screenPath, transformedPaint);
+    	context.updateTransformedBitmap();
+    	context.invalidate();
     }
 
 	@Override

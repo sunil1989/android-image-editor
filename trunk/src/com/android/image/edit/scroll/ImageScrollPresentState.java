@@ -1,9 +1,12 @@
 package com.android.image.edit.scroll;
 
+import com.android.image.edit.ImageEditorView;
+
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Rect;
+import android.graphics.RectF;
 
 public class ImageScrollPresentState implements ImageScrollState {
 	
@@ -55,6 +58,14 @@ public class ImageScrollPresentState implements ImageScrollState {
 			relativeCoordinates[i+1] += scrollRect.top;
 		}
 	}
+	
+	@Override
+	public void toRelativeCoordinates(float[] absoluteCoordinates) {
+		for (int i = 0; i < absoluteCoordinates.length; i+=2) {
+			absoluteCoordinates[i] -= scrollRect.left;
+			absoluteCoordinates[i+1] -= scrollRect.top;
+		}
+	}
 
 	@Override
 	public void setScrollByX(float scrollByX) {
@@ -66,4 +77,9 @@ public class ImageScrollPresentState implements ImageScrollState {
 		this.scrollByY = scrollByY;
 	}
 
+	@Override
+	public RectF getVisibleRegionBounds(ImageEditorView context) {
+		return new RectF(0, 0, context.getWidth(), context.getHeight());
+	}
+	
 }
