@@ -7,9 +7,14 @@ import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.RectF;
 
-import com.android.image.edit.command.CommandManager;
-import com.android.image.edit.memento.Memento;
-import com.android.image.edit.memento.MementoOriginator;
+import com.android.image.edit.command.AbstractCommand;
+import com.android.image.edit.command.AbstractMultiTargetCommand;
+import com.android.image.edit.command.factory.CommandFactory;
+import com.android.image.edit.command.factory.MementoUndoableCommandFactory;
+import com.android.image.edit.command.factory.SimpleCommandFactory;
+import com.android.image.edit.command.manager.CommandManager;
+import com.android.image.edit.command.manager.CommandManagerImpl;
+import com.android.image.edit.command.manager.UndoableCommandManager;
 import com.android.image.edit.scroll.ImageScrollState;
 import com.android.image.edit.scroll.ImageScrollStateFactory;
 import com.android.image.edit.tool.EraseTool;
@@ -20,16 +25,18 @@ import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
 
-public class ImageEditorView extends View implements MementoOriginator<ImageEditorView.ImageEditorViewMemento> {
+public class ImageEditorView extends View {
 	
 	public static int BACKGROUND_COLOR = 0xFF424542;
 
-	private Bitmap  mBitmap;
+	//private Bitmap  mBitmap;
+	private FileBitmap originalCanvasBitmap = new FileBitmap(BACKGROUND_COLOR);
 	private Bitmap transformedBitmap;
-    private Canvas  mCanvas = new Canvas();
+    //private Canvas  mCanvas = new Canvas();
     private Canvas transformedCanvas = new Canvas();
     private Paint   mBitmapPaint = new Paint(Paint.DITHER_FLAG);
-    private CommandManager commandManager = new CommandManager(2);
+    public CommandManager<AbstractMultiTargetCommand<BitmapWrapper>> commandManager = new CommandManagerImpl(5);
+    public CommandFactory<BitmapWrapper, AbstractMultiTargetCommand<BitmapWrapper>> commandFactory = SimpleCommandFactory.getInstance();
     private Tool currentTool = new EraseTool(this);
     private Matrix transform = new Matrix();
     private Matrix inverse = new Matrix();
@@ -39,6 +46,10 @@ public class ImageEditorView extends View implements MementoOriginator<ImageEdit
     public ImageEditorView(Context context, AttributeSet attrs) {
 		super(context, attrs);
 	}
+    
+    private void clearCanvas(Canvas canvas) {
+    	canvas.drawColor(BACKGROUND_COLOR);
+    }
 
     @Override
     protected void onDraw(Canvas canvas) {
@@ -47,10 +58,6 @@ public class ImageEditorView extends View implements MementoOriginator<ImageEdit
     	drawTransformedBitmap(canvas);
     	
         currentTool.onDraw(this, canvas);
-    }
-    
-    private void clearCanvas(Canvas canvas) {
-    	canvas.drawColor(BACKGROUND_COLOR);
     }
 
 	public void setScrollByX(float scrollByX) {
@@ -61,40 +68,52 @@ public class ImageEditorView extends View implements MementoOriginator<ImageEdit
 		imageScrollState.setScrollByY(scrollByY);
 	}
 
-	public CommandManager getCommandManager() {
-		return commandManager;
+	public FileBitmap getOriginalCanvasBitmap() {
+		return originalCanvasBitmap;
 	}
 
+	/*public CommandManager<AbstractMultiTargetCommand<CanvasBitmap>> getCommandManager() {
+		return commandManager;
+	}
+	
+	public CommandFactory<CanvasBitmap, AbstractMultiTargetCommand<CanvasBitmap>> getCommandFactory() {
+		return commandFactory;
+	}*/
+
 	private void drawTransformedBitmap(Canvas canvas) {
-    	if (mBitmap != null) {
+    	if (transformedBitmap != null) {
     		imageScrollState.drawBitmap(canvas, transformedBitmap, mBitmapPaint, getWidth(), getHeight());
     	}
     }
 	
-	private void resetTransformAndScrollState() {
-		boolean imageFitToView = imageTransformStrategy.prepareTransformAndCheckFit(transform, mBitmap.getWidth(), mBitmap.getHeight(), getWidth(), getHeight());
-		transform.invert(inverse);
-		imageScrollState = ImageScrollStateFactory.getInstance().createImageScrollState(imageFitToView);
-		updateTransformedBitmap();
+	public void updateTransformedBitmap(boolean resetTransformAndScrollState) {
+		Bitmap originalBitmap = originalCanvasBitmap.getPlainBitmap();
+		updateTransformedBitmap(originalBitmap, resetTransformAndScrollState);
+		originalBitmap.recycle();
 	}
 	
-	public void updateTransformedBitmap() {
+	public void updateTransformedBitmap(Bitmap originalBitmap, boolean resetTransformAndScrollState) {
+		if (resetTransformAndScrollState) {
+			boolean imageFitToView = imageTransformStrategy.prepareTransformAndCheckFit(transform, originalBitmap.getWidth(), originalBitmap.getHeight(), getWidth(), getHeight());
+			transform.invert(inverse);
+			imageScrollState = ImageScrollStateFactory.getInstance().createImageScrollState(imageFitToView);
+		}
 		if (transformedBitmap != null) {
 			transformedBitmap.recycle();
 		}
-		transformedBitmap = Bitmap.createBitmap(mBitmap, 0, 0, mBitmap.getWidth(), mBitmap.getHeight(), transform, false);
+		transformedBitmap = Bitmap.createBitmap(originalBitmap, 0, 0, originalBitmap.getWidth(), originalBitmap.getHeight(), transform, false);
 		transformedCanvas.setBitmap(transformedBitmap);
 	}
 	
 	public void changeImageTransformStrategy(ImageTransformStrategy imageTransformStrategy) {
 		this.imageTransformStrategy = imageTransformStrategy;
-		resetTransformAndScrollState();
+		updateTransformedBitmap(true);
 		invalidate();
 	}
 
 	@Override
     public boolean onTouchEvent(MotionEvent event) {
-		if (mBitmap == null) {
+		if (transformedBitmap == null) {
 			return true;
 		}
         switch (event.getAction()) {
@@ -111,12 +130,8 @@ public class ImageEditorView extends View implements MementoOriginator<ImageEdit
         return true;
     }
 	
-	public boolean superOnTouchEvent(MotionEvent event) {
-		return super.onTouchEvent(event);
-	}
-	
     public Canvas getCanvas() {
-		return mCanvas;
+		return originalCanvasBitmap.getCanvas();
 	}
 
 	public Canvas getTransformedCanvas() {
@@ -126,57 +141,55 @@ public class ImageEditorView extends View implements MementoOriginator<ImageEdit
 	public Tool getCurrentTool() {
 		return currentTool;
 	}
-
-	public ImageEditorViewMemento createMemento() {
-		return new ImageEditorViewMemento(mBitmap.copy(Bitmap.Config.ARGB_8888, false));
+	
+	public void setOriginalAndUpdateTransformedBitmap(String bitmapFilePath) {
+		setOriginalBitmap(bitmapFilePath);
+		updateTransformedBitmap(true);
 	}
 	
-	public void setMemento(ImageEditorViewMemento memento) {
-		drawBitmap(memento.state);
-		invalidate();
-	}
-	
-	public void drawBitmap(Bitmap bitmap) {
+	public void setOriginalBitmap(String bitmapFilePath) {
+		/*if (mBitmap != null && bitmap.getWidth() == mBitmap.getWidth() && bitmap.getHeight() == mBitmap.getHeight()) {
+			clearCanvas(mCanvas);
+			mCanvas.drawBitmap(bitmap, 0, 0, null);
+			updateTransformedBitmap(false);
+			return;
+		}
 		if (mBitmap != null) {
 			mBitmap.recycle();
 		}
 		mBitmap = Bitmap.createBitmap(bitmap.getWidth(), bitmap.getHeight(), Bitmap.Config.ARGB_8888);
 		mCanvas.setBitmap(mBitmap);
-		mCanvas.drawBitmap(bitmap, 0, 0, null);
-		resetTransformAndScrollState();
-	}
-	
-	public float[] getOriginalPoints(float... transformedCoord) {
-		imageScrollState.toAbsoluteCoordinates(transformedCoord);
-		float[] result = new float[transformedCoord.length];
-		inverse.mapPoints(result, transformedCoord);
-		return result;
-	}
-	
-	public float[] getTransformedPoints(float... originalCoord) {
-		float[] result = new float[originalCoord.length];
-		transform.mapPoints(result, originalCoord);
-		imageScrollState.toRelativeCoordinates(result);
-		return result;
+		mCanvas.drawBitmap(bitmap, 0, 0, null);*/
+		//originalCanvasBitmap = new FileBitmap(BACKGROUND_COLOR, bitmapFilePath);
+		originalCanvasBitmap.setBitmap(bitmapFilePath);
 	}
 	
 	public float getOriginalRadius(float transformedRadius) {
 		return inverse.mapRadius(transformedRadius);
 	}
 	
-	public RectF getOriginalRect(RectF transformedRect) {
-		RectF result = new RectF();
-		inverse.mapRect(result, transformedRect);
-		return result;
+	public Matrix getInverseTransform() {
+		Matrix matrix = new Matrix();
+		matrix.set(imageScrollState.getTranslate());
+		matrix.postConcat(inverse);
+		return matrix;
 	}
 	
-	public void setBitmap(Bitmap bitmap) {
-		drawBitmap(bitmap);
+	public void setBitmap(String bitmapFilePath) {
+		setOriginalAndUpdateTransformedBitmap(bitmapFilePath);
 		invalidate();
 	}
 	
 	public void undo() {
-		commandManager.undo();
+		if (commandManager.hasMoreUndo()) {
+			commandManager.undo();
+			Bitmap initialBitmap = originalCanvasBitmap.getBitmap();
+			Bitmap bitmap = commandManager.getCurrentOriginalBitmap(initialBitmap);
+			updateTransformedBitmap(bitmap, true);
+			bitmap.recycle();
+			initialBitmap.recycle();
+			invalidate();
+		}
 	}
 	
 	public void changeTool(Tool tool) {
@@ -188,33 +201,23 @@ public class ImageEditorView extends View implements MementoOriginator<ImageEdit
 	}
     
     public Bitmap getBitmap() {
-		return mBitmap;
+		return originalCanvasBitmap.getBitmap();
 	}
 	
 	public Bitmap getTransformedBitmap() {
 		return transformedBitmap;
-	}
-
-	public void drawPath() {
-		currentTool.drawPath(this);
 	}
 	
 	public RectF getImageVisibleRegionBounds() {
 		return imageScrollState.getVisibleRegionBounds(this);
 	}
 	
-	public static class ImageEditorViewMemento implements Memento {
-		
-		private Bitmap state;
-
-		private ImageEditorViewMemento(Bitmap state) {
-			this.state = state;
-		}
-		
-		public void recycle() {
-			state.recycle();
-		}
-		
+	public Matrix getTranslate() {
+		return imageScrollState.getTranslate();
+	}
+	
+	public Matrix getInverse() {
+		return inverse;
 	}
 	
 }

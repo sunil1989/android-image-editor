@@ -1,6 +1,6 @@
 package com.android.image.edit.command;
 
-public interface UndoableCommand<P> extends Command<P> {
+public interface UndoableCommand extends Command {
 	
 	void undo();
 

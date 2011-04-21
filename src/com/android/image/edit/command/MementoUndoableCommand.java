@@ -3,27 +3,26 @@ package com.android.image.edit.command;
 import com.android.image.edit.memento.Memento;
 import com.android.image.edit.memento.MementoOriginator;
 
-public abstract class MementoUndoableCommand<P, M extends Memento, O extends MementoOriginator<M>> implements UndoableCommand<P> {
-	
-	protected O target;
+public class MementoUndoableCommand<M extends Memento, O extends MementoOriginator<M>> extends AbstractUndoableCommand<O> {
 	
 	private M state;
 	
-	public MementoUndoableCommand(O target) {
-		this.target = target;
+	private AbstractCommand<O> wrapped;
+	
+	public MementoUndoableCommand(AbstractCommand<O> wrapped) {
+		super(wrapped.getTarget());
+		this.wrapped = wrapped;
 	}
 	
-	protected abstract void doExecute(P... params);
-	
 	@Override
-	public void execute(P... params) {
-		state = target.createMemento();
-		doExecute(params);
+	public void execute(Object... params) {
+		state = wrapped.getTarget().createMemento();
+		wrapped.execute(params);
 	}
 	
 	@Override
 	public void undo() {
-		target.setMemento(state);
+		wrapped.getTarget().setMemento(state);
 		state.recycle();
 	}
 

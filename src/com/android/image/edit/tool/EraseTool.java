@@ -8,7 +8,6 @@ import android.graphics.PorterDuffXfermode;
 import android.view.MotionEvent;
 
 import com.android.image.edit.ImageEditorView;
-import com.android.image.edit.command.DrawPathCommand;
 
 public class EraseTool implements Tool {
 	
@@ -16,14 +15,11 @@ public class EraseTool implements Tool {
     private static final float TOUCH_TOLERANCE = 4;
     private static final float DEFAULT_TRANSFORMED_STROKE_WIDTH = 15;
     private Path screenPath = new Path();
-    private Path originalPath = new Path();
-    private Paint originalPaint;
-    //private Paint transformedPaint;
+    private Paint transformedPaint;
     private Paint transformedTempPaint;
 
 	public EraseTool(ImageEditorView context) {
-		originalPaint = createPaint(0xFFFF0000, true);
-		//transformedPaint = createPaint(0xFFFF0000, true, DEFAULT_TRANSFORMED_STROKE_WIDTH);
+		transformedPaint = createPaint(0xFFFF0000, true, DEFAULT_TRANSFORMED_STROKE_WIDTH);
 		transformedTempPaint = createPaint(ImageEditorView.BACKGROUND_COLOR, false, DEFAULT_TRANSFORMED_STROKE_WIDTH);
 	}
 	
@@ -53,10 +49,7 @@ public class EraseTool implements Tool {
 		float x = event.getX(),
 		y = event.getY();
 		screenPath.reset();
-		originalPath.reset();
 		screenPath.moveTo(x, y);
-		float[] orig = context.getOriginalPoints(x, y);
-		originalPath.moveTo(orig[0], orig[1]);
         mX = x;
         mY = y;
         context.invalidate();
@@ -70,8 +63,6 @@ public class EraseTool implements Tool {
         dy = Math.abs(y - mY);
         if (dx >= TOUCH_TOLERANCE || dy >= TOUCH_TOLERANCE) {
         	screenPath.quadTo(mX, mY, (x + mX)/2, (y + mY)/2);
-        	float[] orig = context.getOriginalPoints(mX, mY, (x + mX)/2, (y + mY)/2);
-        	originalPath.quadTo(orig[0], orig[1], orig[2], orig[3]);
             mX = x;
             mY = y;
         }
@@ -81,13 +72,16 @@ public class EraseTool implements Tool {
 	@Override
 	public void touchUp(ImageEditorView context) {
 		screenPath.lineTo(mX, mY);
-		float[] orig = context.getOriginalPoints(mX, mY);
-		originalPath.lineTo(orig[0], orig[1]);
-		screenPath.reset();
         // commit the path to our offscreen
-		context.getCommandManager().executeCommand(new DrawPathCommand(context));
+		Path transformedPath = new Path();
+    	screenPath.transform(context.getTranslate(), transformedPath);
+    	context.getTransformedCanvas().drawPath(transformedPath, transformedPaint);
+		Path originalPath = new Path();
+		transformedPath.transform(context.getInverse(), originalPath);
+		float strokeWidth = context.getOriginalRadius(DEFAULT_TRANSFORMED_STROKE_WIDTH);
+		context.commandManager.executeCommand(context.commandFactory.createDrawPathCommand(context.getOriginalCanvasBitmap()), originalPath, strokeWidth);
         // kill this so we don't double draw
-		originalPath.reset();
+		screenPath.reset();
         context.invalidate();
 	}
 
@@ -97,18 +91,6 @@ public class EraseTool implements Tool {
         	canvas.drawPath(screenPath, transformedTempPaint);
         }
 	}
-	
-	@Override
-	public void drawPath(ImageEditorView context) {
-		originalPaint.setStrokeWidth(context.getOriginalRadius(DEFAULT_TRANSFORMED_STROKE_WIDTH));
-    	context.getCanvas().drawPath(originalPath, originalPaint);
-    	//Path transformedPath = new Path();
-    	//screenPath.transform(context.getTranslate(), transformedPath);
-    	//context.getTransformedCanvas().drawPath(transformedPath, transformedPaint);
-    	//context.getTransformedCanvas().drawPath(screenPath, transformedPaint);
-    	context.updateTransformedBitmap();
-    	context.invalidate();
-    }
 
 	@Override
 	public void crop(ImageEditorView context) {}

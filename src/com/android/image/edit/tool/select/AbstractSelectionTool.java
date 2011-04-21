@@ -1,4 +1,4 @@
-package com.android.image.edit.tool;
+package com.android.image.edit.tool.select;
 
 import android.graphics.Canvas;
 import android.graphics.Paint;
@@ -6,7 +6,7 @@ import android.graphics.RectF;
 import android.graphics.Paint.Style;
 
 import com.android.image.edit.ImageEditorView;
-import com.android.image.edit.command.CropCommand;
+import com.android.image.edit.tool.Tool;
 
 public abstract class AbstractSelectionTool implements Tool {
 	
@@ -42,15 +42,15 @@ public abstract class AbstractSelectionTool implements Tool {
 		selection = null;
 		return selectionCopy;
 	}
-
-	@Override
-	public void drawPath(ImageEditorView context) {}
 	
 	@Override
 	public void crop(ImageEditorView context) {
 		if (selection != null) {
-			RectF originalSelection = context.getOriginalRect(clearSelection());
-			context.getCommandManager().executeCommand(new CropCommand(context), originalSelection);
+			RectF originalSelection = new RectF();
+			context.getInverseTransform().mapRect(originalSelection, clearSelection());
+			context.commandManager.executeCommand(context.commandFactory.createCropCommand(context.getOriginalCanvasBitmap()), originalSelection);
+			context.updateTransformedBitmap(true);
+			context.invalidate();
 		}
 	}
 	

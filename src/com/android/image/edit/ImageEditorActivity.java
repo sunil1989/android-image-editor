@@ -8,11 +8,10 @@ import android.content.Intent;
 import android.content.res.Configuration;
 import android.database.Cursor;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 
-import com.android.image.edit.tool.EditRectSelectionTool;
 import com.android.image.edit.tool.EraseTool;
 import com.android.image.edit.tool.ScrollTool;
+import com.android.image.edit.tool.select.EditRectSelectionTool;
 import com.android.image.edit.transform.ImageTransformStrategy;
 import com.android.image.edit.R;
 
@@ -119,7 +118,7 @@ public class ImageEditorActivity extends Activity {
 	@Override
 	public boolean onPrepareOptionsMenu(Menu menu) {
 		MenuItem undoMenuItem = menu.getItem(UNDO_MENU_ITEM_ID);
-		if (getImageEditorView().getCommandManager().hasMoreUndo()) {
+		if (getImageEditorView().commandManager.hasMoreUndo()) {
 			undoMenuItem.setEnabled(true);
 		} else {
 			undoMenuItem.setEnabled(false);
@@ -184,9 +183,7 @@ public class ImageEditorActivity extends Activity {
                 } else {
                 	return;
                 }
-                Bitmap bm = BitmapFactory.decodeFile(currentImagePath);
-                getImageEditorView().setBitmap(bm);
-                bm.recycle();
+                getImageEditorView().setBitmap(currentImagePath);
             }
         }
     }
