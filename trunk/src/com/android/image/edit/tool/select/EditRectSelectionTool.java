@@ -1,5 +1,8 @@
-package com.android.image.edit.tool;
+package com.android.image.edit.tool.select;
 
+import android.graphics.Canvas;
+import android.graphics.Paint;
+import android.graphics.Rect;
 import android.graphics.RectF;
 import android.view.MotionEvent;
 
@@ -20,6 +23,7 @@ public class EditRectSelectionTool extends AbstractSelectionTool {
 	private RectF imageVisibleRegionBounds;
 	private RectF initialSelection = new RectF();
 	private boolean toRightOfFixed, toBottomOfFixed;
+	private Paint vertexesPaint = new Paint();
 
 	public EditRectSelectionTool(ImageEditorView context) {
 		super(SELECTION_RECT_PAINT_COLOR, SELECTION_RECT_FILL_COLOR);
@@ -113,6 +117,12 @@ public class EditRectSelectionTool extends AbstractSelectionTool {
 	public void touchUp(ImageEditorView context) {
 		rectVertexSelected = false;
 		rectSelected = false;
+	}
+
+	@Override
+	public void onDraw(ImageEditorView context, Canvas canvas) {
+		super.onDraw(context, canvas);
+		canvas.drawRect(new Rect(), vertexesPaint);
 	}
 	
 }

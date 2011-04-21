@@ -14,9 +14,6 @@ public class ScrollTool implements Tool {
 	public void crop(ImageEditorView context) {}
 
 	@Override
-	public void drawPath(ImageEditorView context) {}
-
-	@Override
 	public void onDraw(ImageEditorView context, Canvas canvas) {
 	}
 

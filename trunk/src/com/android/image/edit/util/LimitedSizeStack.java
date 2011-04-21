@@ -1,5 +1,6 @@
 package com.android.image.edit.util;
 
+import java.util.Iterator;
 import java.util.LinkedList;
 
 public class LimitedSizeStack<T> {
@@ -12,11 +13,12 @@ public class LimitedSizeStack<T> {
 		this.maxSize = maxSize;
 	}
 	
-	public void push(T element) {
-		if (linkedList.size() == maxSize) {
-			linkedList.removeFirst();
-		}
+	public T push(T element) {
 		linkedList.addLast(element);
+		if (linkedList.size() > maxSize) {
+			return linkedList.removeFirst();
+		}
+		return null;
 	}
 	
 	public T pop() {
@@ -25,6 +27,10 @@ public class LimitedSizeStack<T> {
 	
 	public int size() {
 		return linkedList.size();
+	}
+	
+	public Iterator<T> iterator() {
+		return linkedList.iterator();
 	}
 
 }

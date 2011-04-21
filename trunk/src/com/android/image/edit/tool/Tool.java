@@ -15,8 +15,6 @@ public interface Tool {
 	
 	void onDraw(ImageEditorView context, Canvas canvas);
 	
-	void drawPath(ImageEditorView context);
-	
 	void crop(ImageEditorView context);
 
 }

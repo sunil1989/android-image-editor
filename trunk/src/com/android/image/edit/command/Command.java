@@ -1,7 +1,7 @@
 package com.android.image.edit.command;
 
-public interface Command<P> {
+public interface Command {
 	
-	void execute(P... params);
+	void execute(Object... params);
 	
 }

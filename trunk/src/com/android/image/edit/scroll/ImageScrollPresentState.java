@@ -4,6 +4,7 @@ import com.android.image.edit.ImageEditorView;
 
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.RectF;
@@ -16,6 +17,7 @@ public class ImageScrollPresentState implements ImageScrollState {
 	private int scrollRectY = 0; //current top location of scroll rect
 	private float scrollByX = 0; //x amount to scroll by
 	private float scrollByY = 0; //y amount to scroll by
+	private Matrix translate = new Matrix();
 
 	@Override
 	public void drawBitmap(Canvas canvas, Bitmap bitmap, Paint paint, int viewWidth, int viewHeight) {
@@ -52,22 +54,6 @@ public class ImageScrollPresentState implements ImageScrollState {
 	}
 
 	@Override
-	public void toAbsoluteCoordinates(float[] relativeCoordinates) {
-		for (int i = 0; i < relativeCoordinates.length; i+=2) {
-			relativeCoordinates[i] += scrollRect.left;
-			relativeCoordinates[i+1] += scrollRect.top;
-		}
-	}
-	
-	@Override
-	public void toRelativeCoordinates(float[] absoluteCoordinates) {
-		for (int i = 0; i < absoluteCoordinates.length; i+=2) {
-			absoluteCoordinates[i] -= scrollRect.left;
-			absoluteCoordinates[i+1] -= scrollRect.top;
-		}
-	}
-
-	@Override
 	public void setScrollByX(float scrollByX) {
 		this.scrollByX = scrollByX;
 	}
@@ -80,6 +66,12 @@ public class ImageScrollPresentState implements ImageScrollState {
 	@Override
 	public RectF getVisibleRegionBounds(ImageEditorView context) {
 		return new RectF(0, 0, context.getWidth(), context.getHeight());
+	}
+
+	@Override
+	public Matrix getTranslate() {
+		translate.setTranslate(scrollRect.left, scrollRect.top);
+		return translate;
 	}
 	
 }
