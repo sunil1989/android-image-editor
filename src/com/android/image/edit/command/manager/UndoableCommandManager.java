@@ -40,7 +40,8 @@ public class UndoableCommandManager<T> implements CommandManager<AbstractCommand
 	}
 
 	@Override
-	public Bitmap getCurrentOriginalBitmap(Bitmap initialOriginalBitmap) {
+	public Bitmap applyPendingCommands(Bitmap initialOriginalBitmap,
+			boolean original, boolean needMakeCopy) {
 		return initialOriginalBitmap;
 	}
 

@@ -1,8 +1,14 @@
 package com.android.image.edit.tool;
 
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+
+import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Path;
+import android.graphics.Point;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
 import android.view.MotionEvent;
@@ -17,6 +23,7 @@ public class EraseTool implements Tool {
     private Path screenPath = new Path();
     private Paint transformedPaint;
     private Paint transformedTempPaint;
+    private Point topLeftCorner;
 
 	public EraseTool(ImageEditorView context) {
 		transformedPaint = createPaint(0xFFFF0000, true, DEFAULT_TRANSFORMED_STROKE_WIDTH);
@@ -68,7 +75,7 @@ public class EraseTool implements Tool {
         }
         context.invalidate();
 	}
-
+	
 	@Override
 	public void touchUp(ImageEditorView context) {
 		screenPath.lineTo(mX, mY);
@@ -78,10 +85,12 @@ public class EraseTool implements Tool {
     	context.getTransformedCanvas().drawPath(transformedPath, transformedPaint);
 		Path originalPath = new Path();
 		transformedPath.transform(context.getInverse(), originalPath);
+		//screenPath.transform(context.getInverse(), originalPath);
 		float strokeWidth = context.getOriginalRadius(DEFAULT_TRANSFORMED_STROKE_WIDTH);
-		context.commandManager.executeCommand(context.commandFactory.createDrawPathCommand(context.getOriginalCanvasBitmap()), originalPath, strokeWidth);
+		context.commandManager.executeCommand(context.commandFactory.createDrawPathCommand(context.getOriginalBitmapWrapper()), originalPath, strokeWidth);
         // kill this so we don't double draw
 		screenPath.reset();
+		transformedPath.reset();
         context.invalidate();
 	}
 

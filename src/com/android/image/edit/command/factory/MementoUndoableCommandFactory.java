@@ -1,9 +1,7 @@
 package com.android.image.edit.command.factory;
 
 import com.android.image.edit.FileBitmap;
-import com.android.image.edit.FileBitmap.CanvasBitmapMemento;
 import com.android.image.edit.command.AbstractCommand;
-import com.android.image.edit.command.MementoUndoableCommand;
 
 public class MementoUndoableCommandFactory implements CommandFactory<FileBitmap, AbstractCommand<FileBitmap>> {
 	
@@ -15,12 +13,14 @@ public class MementoUndoableCommandFactory implements CommandFactory<FileBitmap,
 
 	@Override
 	public AbstractCommand<FileBitmap> createCropCommand(FileBitmap target) {
-		return new MementoUndoableCommand<CanvasBitmapMemento, FileBitmap>(wrapped.createCropCommand(target));
+		//return new MementoUndoableCommand<CanvasBitmapMemento, FileBitmap>(wrapped.createCropCommand(target));
+		return null;
 	}
 
 	@Override
 	public AbstractCommand<FileBitmap> createDrawPathCommand(FileBitmap target) {
-		return new MementoUndoableCommand<CanvasBitmapMemento, FileBitmap>(wrapped.createDrawPathCommand(target));
+		//return new MementoUndoableCommand<CanvasBitmapMemento, FileBitmap>(wrapped.createDrawPathCommand(target));
+		return null;
 	}
 
 }

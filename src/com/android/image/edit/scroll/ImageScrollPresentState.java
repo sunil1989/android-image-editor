@@ -6,6 +6,7 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.graphics.Paint;
+import android.graphics.Point;
 import android.graphics.Rect;
 import android.graphics.RectF;
 
@@ -70,8 +71,13 @@ public class ImageScrollPresentState implements ImageScrollState {
 
 	@Override
 	public Matrix getTranslate() {
-		translate.setTranslate(scrollRect.left, scrollRect.top);
+		translate.setTranslate(scrollRectX, scrollRectY);
 		return translate;
+	}
+
+	@Override
+	public Point getTopLeftCorner() {
+		return new Point(scrollRectX, scrollRectY);
 	}
 	
 }

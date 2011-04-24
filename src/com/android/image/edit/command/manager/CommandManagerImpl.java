@@ -31,8 +31,11 @@ public class CommandManagerImpl implements CommandManager<AbstractMultiTargetCom
 	}
 
 	@Override
-	public Bitmap getCurrentOriginalBitmap(Bitmap initialOriginalBitmap) {
-		MemoryBitmap currentOriginalCanvasBitmap = new MemoryBitmap(ImageEditorView.BACKGROUND_COLOR, initialOriginalBitmap);
+	public Bitmap applyPendingCommands(Bitmap initialOriginalBitmap, boolean original, boolean needMakeCopy) {
+		/*if (!hasMoreUndo()) {
+			return initialOriginalBitmap;
+		}*/
+		MemoryBitmap currentOriginalCanvasBitmap = new MemoryBitmap(ImageEditorView.BACKGROUND_COLOR, initialOriginalBitmap, original, needMakeCopy);
 		for (Iterator<CommandInvocation<BitmapWrapper>> iterator = commandHistory.iterator(); iterator.hasNext(); ) {
 			iterator.next().invoke(currentOriginalCanvasBitmap);
 		}
