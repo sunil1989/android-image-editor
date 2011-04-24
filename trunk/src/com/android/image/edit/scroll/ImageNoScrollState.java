@@ -6,6 +6,7 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.graphics.Paint;
+import android.graphics.Point;
 import android.graphics.RectF;
 
 public class ImageNoScrollState implements ImageScrollState {
@@ -32,6 +33,11 @@ public class ImageNoScrollState implements ImageScrollState {
 	@Override
 	public Matrix getTranslate() {
 		return translate;
+	}
+
+	@Override
+	public Point getTopLeftCorner() {
+		return new Point(0, 0);
 	}
 	
 }

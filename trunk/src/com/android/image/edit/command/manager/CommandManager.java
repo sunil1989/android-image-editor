@@ -12,6 +12,6 @@ public interface CommandManager<C extends Command> {
 	
 	boolean hasMoreUndo();
 	
-	Bitmap getCurrentOriginalBitmap(Bitmap initialOriginalBitmap);
+	Bitmap applyPendingCommands(Bitmap initialOriginalBitmap, boolean original, boolean needMakeCopy);
 
 }

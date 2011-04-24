@@ -48,7 +48,7 @@ public abstract class AbstractSelectionTool implements Tool {
 		if (selection != null) {
 			RectF originalSelection = new RectF();
 			context.getInverseTransform().mapRect(originalSelection, clearSelection());
-			context.commandManager.executeCommand(context.commandFactory.createCropCommand(context.getOriginalCanvasBitmap()), originalSelection);
+			context.commandManager.executeCommand(context.commandFactory.createCropCommand(context.getOriginalBitmapWrapper()), originalSelection);
 			context.updateTransformedBitmap(true);
 			context.invalidate();
 		}

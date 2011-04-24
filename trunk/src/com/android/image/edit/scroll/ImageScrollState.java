@@ -6,6 +6,7 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.graphics.Paint;
+import android.graphics.Point;
 import android.graphics.RectF;
 
 public interface ImageScrollState {
@@ -19,5 +20,7 @@ public interface ImageScrollState {
 	RectF getVisibleRegionBounds(ImageEditorView context);
 	
 	Matrix getTranslate();
+	
+	Point getTopLeftCorner();
 
 }
