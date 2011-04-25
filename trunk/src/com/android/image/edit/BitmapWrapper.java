@@ -12,6 +12,8 @@ public interface BitmapWrapper {
 	
 	void setBitmap(String bitmapFilePath);
 	
+	void setBitmap(Bitmap bitmap);
+	
 	void recycle(Bitmap bitmap);
 	
 	boolean needMakeCopy();

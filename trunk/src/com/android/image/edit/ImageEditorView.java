@@ -34,7 +34,7 @@ public class ImageEditorView extends View {
 	private Bitmap transformedBitmap;
     private Canvas transformedCanvas = new Canvas();
     private Paint   mBitmapPaint = new Paint(Paint.DITHER_FLAG);
-    public CommandManager<AbstractMultiTargetCommand<BitmapWrapper>> commandManager = new CommandManagerImpl(2);
+    public CommandManager<AbstractMultiTargetCommand<BitmapWrapper>> commandManager = new CommandManagerImpl(20);
     public CommandFactory<BitmapWrapper, AbstractMultiTargetCommand<BitmapWrapper>> commandFactory = SimpleCommandFactory.getInstance();
     private Tool currentTool = new EraseTool(this);
     private Matrix transform = new Matrix();
@@ -83,7 +83,7 @@ public class ImageEditorView extends View {
 		Bitmap originalBitmap = commandManager.applyPendingCommands(initialOriginalBitmap, false, originalBitmapWrapper.needMakeCopy());
 		updateTransformedBitmap(originalBitmap, imageTransformStrategyChanged);
 		originalBitmap.recycle();
-		originalBitmapWrapper.recycle(initialOriginalBitmap);
+		//originalBitmapWrapper.recycle(initialOriginalBitmap);
 	}
 	
 	public void updateTransformedBitmap(Bitmap originalBitmap, boolean imageTransformStrategyChanged) {

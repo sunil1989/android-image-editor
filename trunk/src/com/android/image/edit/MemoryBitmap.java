@@ -62,6 +62,11 @@ public class MemoryBitmap extends AbstractBitmapWrapper {
 			}
 		}
 	}
+	
+	@Override
+	public void setBitmap(Bitmap bitmap) {
+		setBitmap(bitmap, false);
+	}
 
 	@Override
 	public void recycle(Bitmap bitmap) {
