@@ -4,7 +4,6 @@ import android.graphics.Bitmap;
 import android.graphics.RectF;
 
 import com.android.image.edit.BitmapWrapper;
-import com.android.image.edit.FileBitmap;
 
 public class CropCommand extends AbstractMultiTargetCommand<BitmapWrapper> {
 
@@ -18,8 +17,8 @@ public class CropCommand extends AbstractMultiTargetCommand<BitmapWrapper> {
 			throw new IllegalArgumentException("android.graphics.RectF expected but was " + params[0].getClass());
 		}
 		RectF selection = (RectF)params[0];
-		//Bitmap croppedBitmap = Bitmap.createBitmap(target.getBitmap(), Math.round(selection.left), Math.round(selection.top), Math.round(selection.width()), Math.round(selection.height()));
-		//target.setBitmap(croppedBitmap);
+		Bitmap croppedBitmap = Bitmap.createBitmap(target.getBitmap(), Math.round(selection.left), Math.round(selection.top), Math.round(selection.width()), Math.round(selection.height()));
+		target.setBitmap(croppedBitmap);
 		//croppedBitmap.recycle();
 	}
 	

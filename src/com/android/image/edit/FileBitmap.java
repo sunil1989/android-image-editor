@@ -52,6 +52,11 @@ public class FileBitmap extends AbstractBitmapWrapper {
 	public void setBitmap(String bitmapFilePath) {
 		this.bitmapFilePath = bitmapFilePath;
 	}
+	
+	@Override
+	public void setBitmap(Bitmap bitmap) {
+		
+	}
 
 	@Override
 	public void recycle(Bitmap bitmap) {
