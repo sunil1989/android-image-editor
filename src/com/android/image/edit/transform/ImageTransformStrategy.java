@@ -6,10 +6,32 @@ public enum ImageTransformStrategy {
 	
 	ORIGINAL_SIZE {
 		
+		private void postRotate(Matrix transform, int originalImageHeight) {
+			transform.postRotate(90);
+			transform.postTranslate(originalImageHeight, 0);
+		}
+		
 		@Override
 		public boolean prepareTransformAndCheckFit(Matrix transform, int originalImageWidth, int originalImageHeight, int viewWidth, int viewHeight) {
 			transform.reset();
-			if (imageFitsIntoView(originalImageWidth, originalImageHeight, viewWidth, viewHeight)) {
+			if (originalImageWidth <= viewWidth) {
+				return originalImageHeight <= viewHeight;
+			}
+			if (originalImageWidth <= viewHeight) {
+				if (originalImageHeight <= viewWidth) {
+					postRotate(transform, originalImageHeight);
+					return true;
+				}
+				if (originalImageHeight < originalImageWidth) {
+					postRotate(transform, originalImageHeight);
+				}
+				return false;
+			}
+			if (originalImageHeight < viewHeight) {
+				postRotate(transform, originalImageHeight);
+			}
+			return false;
+			/*if (imageFitsIntoView(originalImageWidth, originalImageHeight, viewWidth, viewHeight)) {
 				return true;
 			}
 			if (imageFitsIntoView(originalImageHeight, originalImageWidth, viewWidth, viewHeight)) {
@@ -17,7 +39,8 @@ public enum ImageTransformStrategy {
 				transform.postTranslate(originalImageHeight, 0);
 				return true;
 			}
-			return false;
+			
+			return false;*/
 		}
 		
 	},
