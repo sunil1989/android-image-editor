@@ -22,6 +22,8 @@ public class ImageScrollPresentState implements ImageScrollState {
 
 	@Override
 	public void drawBitmap(Canvas canvas, Bitmap bitmap, Paint paint, int viewWidth, int viewHeight) {
+		viewWidth = Math.min(viewWidth, bitmap.getWidth());
+		viewHeight = Math.min(viewHeight, bitmap.getHeight());
 		displayRect.set(0, 0, viewWidth, viewHeight);
 		// Our move updates are calculated in ACTION_MOVE in the opposite direction
 		// from how we want to move the scroll rect. Think of this as dragging to
