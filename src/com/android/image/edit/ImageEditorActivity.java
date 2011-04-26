@@ -9,10 +9,10 @@ import android.content.res.Configuration;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 
+import com.android.image.edit.scale.ImageScaleStrategy;
 import com.android.image.edit.tool.EraseTool;
 import com.android.image.edit.tool.ScrollTool;
 import com.android.image.edit.tool.select.EditRectSelectionTool;
-import com.android.image.edit.transform.ImageTransformStrategy;
 import com.android.image.edit.R;
 
 
@@ -155,9 +155,9 @@ public class ImageEditorActivity extends Activity {
 		} else if (item.getItemId() == SCROLL_MENU_ITEM_ID) {
 			imageEditorView.changeTool(new ScrollTool());
 		} else if (item.getItemId() == FIT_TO_SCREEN_ITEM_ID) {
-			imageEditorView.changeImageTransformStrategy(ImageTransformStrategy.FIT_TO_SCREEN_SIZE);
+			imageEditorView.changeImageTransformStrategy(ImageScaleStrategy.FIT_TO_SCREEN_SIZE);
 		} else if (item.getItemId() == ORIGINAL_SIZE_ITEM_ID) {
-			imageEditorView.changeImageTransformStrategy(ImageTransformStrategy.ORIGINAL_SIZE);
+			imageEditorView.changeImageTransformStrategy(ImageScaleStrategy.ORIGINAL_SIZE);
 		}
 		return super.onOptionsItemSelected(item);
 	}
