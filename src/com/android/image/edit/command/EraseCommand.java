@@ -7,7 +7,6 @@ import android.graphics.PorterDuffXfermode;
 
 import com.android.image.edit.BitmapWrapper;
 import com.android.image.edit.ImageEditorView;
-import com.android.image.edit.MemoryBitmap;
 
 public class EraseCommand extends AbstractMultiTargetCommand<BitmapWrapper> {
 
