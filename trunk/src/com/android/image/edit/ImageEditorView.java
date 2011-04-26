@@ -5,7 +5,6 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.graphics.Paint;
-import android.graphics.Point;
 import android.graphics.RectF;
 import android.graphics.Region.Op;
 
@@ -14,11 +13,11 @@ import com.android.image.edit.command.factory.CommandFactory;
 import com.android.image.edit.command.factory.SimpleCommandFactory;
 import com.android.image.edit.command.manager.CommandManager;
 import com.android.image.edit.command.manager.CommandManagerImpl;
+import com.android.image.edit.scale.ImageScaleStrategy;
 import com.android.image.edit.scroll.ImageScrollState;
 import com.android.image.edit.scroll.ImageScrollStateFactory;
 import com.android.image.edit.tool.EraseTool;
 import com.android.image.edit.tool.Tool;
-import com.android.image.edit.transform.ImageTransformStrategy;
 
 import android.util.AttributeSet;
 import android.view.MotionEvent;
@@ -26,9 +25,9 @@ import android.view.View;
 
 public class ImageEditorView extends View {
 	
-	public static int BACKGROUND_COLOR = 0xFF424542;
-	public static Bitmap.Config nonAlphaBitmapConfig = Bitmap.Config.RGB_565;
-	public static Bitmap.Config alphaBitmapConfig = Bitmap.Config.ARGB_8888;
+	public static final int BACKGROUND_COLOR = 0xFF424542;
+	public static final Bitmap.Config nonAlphaBitmapConfig = Bitmap.Config.RGB_565;
+	public static final Bitmap.Config alphaBitmapConfig = Bitmap.Config.ARGB_8888;
 
 	private BitmapWrapper originalBitmapWrapper = new MemoryBitmap(BACKGROUND_COLOR, true);
 	private Bitmap transformedBitmap;
@@ -39,7 +38,7 @@ public class ImageEditorView extends View {
     private Tool currentTool = new EraseTool(this);
     private Matrix transform = new Matrix();
     private Matrix inverse = new Matrix();
-    private ImageTransformStrategy imageTransformStrategy = ImageTransformStrategy.FIT_TO_SCREEN_SIZE;
+    private ImageScaleStrategy imageTransformStrategy = ImageScaleStrategy.FIT_TO_SCREEN_SIZE;
     private ImageScrollState imageScrollState;
     private int originalBitmapWidth, originalBitmapHeight;
     
@@ -104,7 +103,7 @@ public class ImageEditorView extends View {
 		transformedCanvas.clipRect(0, 0, transformedCanvas.getWidth(), transformedCanvas.getHeight(), Op.REPLACE);
 	}
 	
-	public void changeImageTransformStrategy(ImageTransformStrategy imageTransformStrategy) {
+	public void changeImageTransformStrategy(ImageScaleStrategy imageTransformStrategy) {
 		this.imageTransformStrategy = imageTransformStrategy;
 		updateTransformedBitmap(true);
 		invalidate();
@@ -183,15 +182,11 @@ public class ImageEditorView extends View {
 	}
 	
 	public RectF getImageVisibleRegionBounds() {
-		return imageScrollState.getVisibleRegionBounds(this);
+		return imageScrollState.getVisibleRegionBounds();
 	}
 	
 	public Matrix getTranslate() {
 		return imageScrollState.getTranslate();
-	}
-	
-	public Point getTopLeftCorner() {
-		return imageScrollState.getTopLeftCorner();
 	}
 	
 	public Matrix getInverse() {

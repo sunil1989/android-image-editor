@@ -1,12 +1,9 @@
 package com.android.image.edit.scroll;
 
-import com.android.image.edit.ImageEditorView;
-
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.graphics.Paint;
-import android.graphics.Point;
 import android.graphics.Rect;
 import android.graphics.RectF;
 
@@ -19,6 +16,7 @@ public class ImageScrollPresentState implements ImageScrollState {
 	private float scrollByX = 0; //x amount to scroll by
 	private float scrollByY = 0; //y amount to scroll by
 	private Matrix translate = new Matrix();
+	private RectF visibleRegionBounds = new RectF();
 
 	@Override
 	public void drawBitmap(Canvas canvas, Bitmap bitmap, Paint paint, int viewWidth, int viewHeight) {
@@ -54,6 +52,7 @@ public class ImageScrollPresentState implements ImageScrollState {
 		scrollRectY = newScrollRectY;
 		scrollByX = 0;
 		scrollByY = 0;
+		visibleRegionBounds.set(0, 0, viewWidth, viewHeight);
 	}
 
 	@Override
@@ -67,19 +66,14 @@ public class ImageScrollPresentState implements ImageScrollState {
 	}
 
 	@Override
-	public RectF getVisibleRegionBounds(ImageEditorView context) {
-		return new RectF(0, 0, context.getWidth(), context.getHeight());
+	public RectF getVisibleRegionBounds() {
+		return visibleRegionBounds;
 	}
 
 	@Override
 	public Matrix getTranslate() {
 		translate.setTranslate(scrollRectX, scrollRectY);
 		return translate;
-	}
-
-	@Override
-	public Point getTopLeftCorner() {
-		return new Point(scrollRectX, scrollRectY);
 	}
 	
 }

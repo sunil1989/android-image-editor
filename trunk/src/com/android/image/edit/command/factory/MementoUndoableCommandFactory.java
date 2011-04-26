@@ -5,10 +5,10 @@ import com.android.image.edit.command.AbstractCommand;
 
 public class MementoUndoableCommandFactory implements CommandFactory<FileBitmap, AbstractCommand<FileBitmap>> {
 	
-	private CommandFactory<FileBitmap, ? extends AbstractCommand<FileBitmap>> wrapped;
+	//private CommandFactory<FileBitmap, ? extends AbstractCommand<FileBitmap>> wrapped;
 
 	public MementoUndoableCommandFactory(CommandFactory<FileBitmap, ? extends AbstractCommand<FileBitmap>> wrapped) {
-		this.wrapped = wrapped;
+		//this.wrapped = wrapped;
 	}
 
 	@Override

@@ -1,14 +1,8 @@
 package com.android.image.edit.tool;
 
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-
-import android.graphics.Bitmap;
 import android.graphics.Canvas;
-import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Path;
-import android.graphics.Point;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
 import android.view.MotionEvent;
@@ -23,7 +17,6 @@ public class EraseTool implements Tool {
     private Path screenPath = new Path();
     private Paint transformedPaint;
     private Paint transformedTempPaint;
-    private Point topLeftCorner;
 
 	public EraseTool(ImageEditorView context) {
 		transformedPaint = createPaint(0xFFFF0000, true, DEFAULT_TRANSFORMED_STROKE_WIDTH);
@@ -68,12 +61,12 @@ public class EraseTool implements Tool {
 		y = event.getY(),
 		dx = Math.abs(x - mX),
         dy = Math.abs(y - mY);
-        if (dx >= TOUCH_TOLERANCE || dy >= TOUCH_TOLERANCE) {
+        if (Math.hypot(dx, dy) >= TOUCH_TOLERANCE) {
         	screenPath.quadTo(mX, mY, (x + mX)/2, (y + mY)/2);
             mX = x;
             mY = y;
+            context.invalidate();
         }
-        context.invalidate();
 	}
 	
 	@Override
