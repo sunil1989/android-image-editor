@@ -13,7 +13,8 @@ import com.android.image.edit.command.factory.CommandFactory;
 import com.android.image.edit.command.factory.SimpleCommandFactory;
 import com.android.image.edit.command.manager.CommandManager;
 import com.android.image.edit.command.manager.CommandManagerImpl;
-import com.android.image.edit.scale.ImageScaleStrategy;
+import com.android.image.edit.scale.DefaultImageScaleStrategies;
+import com.android.image.edit.scale.ImageSizeState;
 import com.android.image.edit.scroll.ImageScrollState;
 import com.android.image.edit.scroll.ImageScrollStateFactory;
 import com.android.image.edit.tool.EraseTool;
@@ -38,9 +39,10 @@ public class ImageEditorView extends View {
     private Tool currentTool = new EraseTool(this);
     private Matrix transform = new Matrix();
     private Matrix inverse = new Matrix();
-    private ImageScaleStrategy imageTransformStrategy = ImageScaleStrategy.FIT_TO_SCREEN_SIZE;
-    private ImageScrollState imageScrollState;
+    //private DefaultImageScaleStrategies imageTransformStrategy = DefaultImageScaleStrategies.FIT_TO_SCREEN_SIZE;
+    private ImageScrollState scrollState;
     private int originalBitmapWidth, originalBitmapHeight;
+    private ImageSizeState sizeState;
     
     public ImageEditorView(Context context, AttributeSet attrs) {
 		super(context, attrs);
@@ -60,11 +62,11 @@ public class ImageEditorView extends View {
     }
 
 	public void setScrollByX(float scrollByX) {
-		imageScrollState.setScrollByX(scrollByX);
+		scrollState.setScrollByX(scrollByX);
 	}
 
 	public void setScrollByY(float scrollByY) {
-		imageScrollState.setScrollByY(scrollByY);
+		scrollState.setScrollByY(scrollByY);
 	}
 
 	public BitmapWrapper getOriginalBitmapWrapper() {
@@ -73,7 +75,7 @@ public class ImageEditorView extends View {
 
 	private void drawTransformedBitmap(Canvas canvas) {
     	if (transformedBitmap != null) {
-    		imageScrollState.drawBitmap(canvas, transformedBitmap, mBitmapPaint, getWidth(), getHeight());
+    		scrollState.drawBitmap(canvas, transformedBitmap, mBitmapPaint, getWidth(), getHeight());
     	}
     }
 	
@@ -82,14 +84,13 @@ public class ImageEditorView extends View {
 		Bitmap originalBitmap = commandManager.applyPendingCommands(initialOriginalBitmap, false, originalBitmapWrapper.needMakeCopy());
 		updateTransformedBitmap(originalBitmap, imageTransformStrategyChanged);
 		originalBitmap.recycle();
-		//originalBitmapWrapper.recycle(initialOriginalBitmap);
 	}
 	
 	public void updateTransformedBitmap(Bitmap originalBitmap, boolean imageTransformStrategyChanged) {
 		if (imageTransformStrategyChanged || originalBitmap.getWidth() != originalBitmapWidth || originalBitmap.getHeight() != originalBitmapHeight) {
 			boolean imageFitToView = imageTransformStrategy.prepareTransformAndCheckFit(transform, originalBitmap.getWidth(), originalBitmap.getHeight(), getWidth(), getHeight());
 			transform.invert(inverse);
-			imageScrollState = ImageScrollStateFactory.getInstance().createImageScrollState(imageFitToView);
+			scrollState = ImageScrollStateFactory.getInstance().createImageScrollState(imageFitToView);
 			originalBitmapWidth = originalBitmap.getWidth();
 			originalBitmapHeight = originalBitmap.getHeight();
 		}
@@ -103,7 +104,7 @@ public class ImageEditorView extends View {
 		transformedCanvas.clipRect(0, 0, transformedCanvas.getWidth(), transformedCanvas.getHeight(), Op.REPLACE);
 	}
 	
-	public void changeImageTransformStrategy(ImageScaleStrategy imageTransformStrategy) {
+	public void changeImageTransformStrategy(DefaultImageScaleStrategies imageTransformStrategy) {
 		this.imageTransformStrategy = imageTransformStrategy;
 		updateTransformedBitmap(true);
 		invalidate();
@@ -146,7 +147,7 @@ public class ImageEditorView extends View {
 	
 	public Matrix getInverseTransform() {
 		Matrix matrix = new Matrix();
-		matrix.set(imageScrollState.getTranslate());
+		matrix.set(scrollState.getTranslate());
 		matrix.postConcat(inverse);
 		return matrix;
 	}
@@ -182,11 +183,11 @@ public class ImageEditorView extends View {
 	}
 	
 	public RectF getImageVisibleRegionBounds() {
-		return imageScrollState.getVisibleRegionBounds();
+		return scrollState.getVisibleRegionBounds();
 	}
 	
 	public Matrix getTranslate() {
-		return imageScrollState.getTranslate();
+		return scrollState.getTranslate();
 	}
 	
 	public Matrix getInverse() {
