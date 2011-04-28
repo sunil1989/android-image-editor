@@ -13,7 +13,7 @@ public class EditRectSelectionTool extends AbstractSelectionTool {
 	private static float INIT_SELECTION_SIZE_PERCENT = 80;
 	private static int SELECTION_RECT_PAINT_COLOR = 0xFF000000;
 	private static int SELECTION_RECT_FILL_COLOR = 0x70FFFFFF;
-	private static final float TOUCH_TOLERANCE = 10;
+	private static final float TOUCH_TOLERANCE = 30;
 	private static final float MIN_SELECTION_RECT_WIDTH = 3*TOUCH_TOLERANCE;
 	private static final float MIN_SELECTION_RECT_HEIGHT = 3*TOUCH_TOLERANCE;
 	private float fixedVerticalEdge, fixedHorizontalEdge;

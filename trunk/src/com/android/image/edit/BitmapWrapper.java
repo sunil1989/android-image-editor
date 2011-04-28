@@ -1,12 +1,11 @@
 package com.android.image.edit;
 
 import android.graphics.Bitmap;
-import android.graphics.Paint;
 import android.graphics.Path;
 
 public interface BitmapWrapper {
 	
-	void drawPath(Path path, Paint paint);
+	void drawPath(Path path, float strokeWidth);
 	
 	Bitmap getBitmap();
 	

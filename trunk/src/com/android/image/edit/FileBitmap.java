@@ -6,7 +6,6 @@ import java.io.FileOutputStream;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
-import android.graphics.Paint;
 import android.graphics.Path;
 
 public class FileBitmap extends AbstractBitmapWrapper {
@@ -16,16 +15,17 @@ public class FileBitmap extends AbstractBitmapWrapper {
 	private String bitmapFilePath;
 	
 	public FileBitmap(int backgroundColor) {
+		super(true);
 		this.backgroundColor = backgroundColor;
 	}
 	
 	public FileBitmap(int backgroundColor, String bitmapFilePath) {
-		this.backgroundColor = backgroundColor;
+		this(backgroundColor);
 		setBitmap(bitmapFilePath);
 	}
 
 	@Override
-	public void drawPath(Path path, Paint paint) {
+	public void drawPath(Path path, float strokeWidth) {
 		BitmapFactory.Options options = new BitmapFactory.Options();
 		options.inPreferredConfig = ImageEditorView.alphaBitmapConfig;
 		Bitmap bm = BitmapFactory.decodeFile(bitmapFilePath, options);

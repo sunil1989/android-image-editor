@@ -3,8 +3,6 @@ package com.android.image.edit.tool;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Path;
-import android.graphics.PorterDuff;
-import android.graphics.PorterDuffXfermode;
 import android.view.MotionEvent;
 
 import com.android.image.edit.ImageEditorView;
@@ -15,33 +13,17 @@ public class EraseTool implements Tool {
     private static final float TOUCH_TOLERANCE = 4;
     private static final float DEFAULT_TRANSFORMED_STROKE_WIDTH = 15;
     private Path screenPath = new Path();
-    private Paint transformedPaint;
-    private Paint transformedTempPaint;
+    private Paint paint;
 
 	public EraseTool(ImageEditorView context) {
-		transformedPaint = createPaint(0xFFFF0000, true, DEFAULT_TRANSFORMED_STROKE_WIDTH);
-		transformedTempPaint = createPaint(ImageEditorView.BACKGROUND_COLOR, false, DEFAULT_TRANSFORMED_STROKE_WIDTH);
-	}
-	
-	private Paint createPaint(int color, boolean clear) {
-		Paint paint = new Paint();
+		paint = new Paint();
 		paint.setAntiAlias(true);
 		paint.setDither(true);
-		paint.setColor(color);
+		paint.setColor(ImageEditorView.BACKGROUND_COLOR);
 		paint.setStyle(Paint.Style.STROKE);
 		paint.setStrokeJoin(Paint.Join.ROUND);
 		paint.setStrokeCap(Paint.Cap.ROUND);
-		if (clear) {
-			paint.setXfermode(new PorterDuffXfermode(
-					PorterDuff.Mode.CLEAR));
-		}
-        return paint;
-	}
-	
-	private Paint createPaint(int color, boolean clear, float strokeWidth) {
-		Paint paint = createPaint(color, clear);
-		paint.setStrokeWidth(strokeWidth);
-		return paint;
+		paint.setStrokeWidth(DEFAULT_TRANSFORMED_STROKE_WIDTH);
 	}
 
 	@Override
@@ -75,10 +57,9 @@ public class EraseTool implements Tool {
         // commit the path to our offscreen
 		Path transformedPath = new Path();
     	screenPath.transform(context.getTranslate(), transformedPath);
-    	context.getTransformedCanvas().drawPath(transformedPath, transformedPaint);
+    	context.getTransformedCanvas().drawPath(transformedPath, paint);
 		Path originalPath = new Path();
 		transformedPath.transform(context.getInverse(), originalPath);
-		//screenPath.transform(context.getInverse(), originalPath);
 		float strokeWidth = context.getOriginalRadius(DEFAULT_TRANSFORMED_STROKE_WIDTH);
 		context.commandManager.executeCommand(context.commandFactory.createDrawPathCommand(context.getOriginalBitmapWrapper()), originalPath, strokeWidth);
         // kill this so we don't double draw
@@ -90,7 +71,7 @@ public class EraseTool implements Tool {
 	@Override
 	public void onDraw(ImageEditorView context, Canvas canvas) {
         if (!screenPath.isEmpty()) {
-        	canvas.drawPath(screenPath, transformedTempPaint);
+        	canvas.drawPath(screenPath, paint);
         }
 	}
 
