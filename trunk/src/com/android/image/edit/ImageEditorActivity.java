@@ -8,8 +8,8 @@ import android.content.Intent;
 import android.content.res.Configuration;
 import android.database.Cursor;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 
-import com.android.image.edit.scale.DefaultImageScaleStrategies;
 import com.android.image.edit.tool.EraseTool;
 import com.android.image.edit.tool.ScrollTool;
 import com.android.image.edit.tool.select.EditRectSelectionTool;
@@ -57,6 +57,12 @@ public class ImageEditorActivity extends Activity {
 				imageEditorView.changeTool(new ScrollTool());
 			}
 		});
+        findViewById(R.id.zoom).setOnClickListener(new View.OnClickListener() {
+        	@Override
+			public void onClick(View v) {
+				imageEditorView.performZoomAction();
+			}
+        });
         findViewById(R.id.erase).setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
@@ -154,11 +160,12 @@ public class ImageEditorActivity extends Activity {
                     "Select Picture"), SELECT_PICTURE_REQUEST_CODE);
 		} else if (item.getItemId() == SCROLL_MENU_ITEM_ID) {
 			imageEditorView.changeTool(new ScrollTool());
-		} else if (item.getItemId() == FIT_TO_SCREEN_ITEM_ID) {
+		}
+		/* else if (item.getItemId() == FIT_TO_SCREEN_ITEM_ID) {
 			imageEditorView.changeImageTransformStrategy(DefaultImageScaleStrategies.FIT_TO_SCREEN_SIZE);
 		} else if (item.getItemId() == ORIGINAL_SIZE_ITEM_ID) {
 			imageEditorView.changeImageTransformStrategy(DefaultImageScaleStrategies.ORIGINAL_SIZE);
-		}
+		}*/
 		return super.onOptionsItemSelected(item);
 	}
 	
@@ -183,7 +190,9 @@ public class ImageEditorActivity extends Activity {
                 } else {
                 	return;
                 }
-                getImageEditorView().setBitmap(currentImagePath);
+                BitmapFactory.Options options = new BitmapFactory.Options();
+        		options.inPreferredConfig = ImageEditorView.nonAlphaBitmapConfig;
+                getImageEditorView().setBitmap(BitmapFactory.decodeFile(currentImagePath, options));
             }
         }
     }

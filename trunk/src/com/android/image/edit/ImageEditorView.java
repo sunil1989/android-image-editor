@@ -13,8 +13,8 @@ import com.android.image.edit.command.factory.CommandFactory;
 import com.android.image.edit.command.factory.SimpleCommandFactory;
 import com.android.image.edit.command.manager.CommandManager;
 import com.android.image.edit.command.manager.CommandManagerImpl;
-import com.android.image.edit.scale.DefaultImageScaleStrategies;
 import com.android.image.edit.scale.ImageSizeState;
+import com.android.image.edit.scale.ImageSizeStateFactory;
 import com.android.image.edit.scroll.ImageScrollState;
 import com.android.image.edit.scroll.ImageScrollStateFactory;
 import com.android.image.edit.tool.EraseTool;
@@ -39,7 +39,6 @@ public class ImageEditorView extends View {
     private Tool currentTool = new EraseTool(this);
     private Matrix transform = new Matrix();
     private Matrix inverse = new Matrix();
-    //private DefaultImageScaleStrategies imageTransformStrategy = DefaultImageScaleStrategies.FIT_TO_SCREEN_SIZE;
     private ImageScrollState scrollState;
     private int originalBitmapWidth, originalBitmapHeight;
     private ImageSizeState sizeState;
@@ -88,7 +87,7 @@ public class ImageEditorView extends View {
 	
 	public void updateTransformedBitmap(Bitmap originalBitmap, boolean imageTransformStrategyChanged) {
 		if (imageTransformStrategyChanged || originalBitmap.getWidth() != originalBitmapWidth || originalBitmap.getHeight() != originalBitmapHeight) {
-			boolean imageFitToView = imageTransformStrategy.prepareTransformAndCheckFit(transform, originalBitmap.getWidth(), originalBitmap.getHeight(), getWidth(), getHeight());
+			boolean imageFitToView = sizeState.prepareScaleAndCheckFit(transform);
 			transform.invert(inverse);
 			scrollState = ImageScrollStateFactory.getInstance().createImageScrollState(imageFitToView);
 			originalBitmapWidth = originalBitmap.getWidth();
@@ -104,11 +103,13 @@ public class ImageEditorView extends View {
 		transformedCanvas.clipRect(0, 0, transformedCanvas.getWidth(), transformedCanvas.getHeight(), Op.REPLACE);
 	}
 	
-	public void changeImageTransformStrategy(DefaultImageScaleStrategies imageTransformStrategy) {
+	/*public void changeImageTransformStrategy(DefaultImageScaleStrategies imageTransformStrategy) {
 		this.imageTransformStrategy = imageTransformStrategy;
 		updateTransformedBitmap(true);
 		invalidate();
-	}
+	}*/
+	
+	
 
 	@Override
     public boolean onTouchEvent(MotionEvent event) {
@@ -137,10 +138,6 @@ public class ImageEditorView extends View {
 		return currentTool;
 	}
 	
-	public void setOriginalBitmap(String bitmapFilePath) {
-		originalBitmapWrapper.setBitmap(bitmapFilePath);
-	}
-	
 	public float getOriginalRadius(float transformedRadius) {
 		return inverse.mapRadius(transformedRadius);
 	}
@@ -153,7 +150,14 @@ public class ImageEditorView extends View {
 	}
 	
 	public void setBitmap(String bitmapFilePath) {
-		setOriginalBitmap(bitmapFilePath);
+		originalBitmapWrapper.setBitmap(bitmapFilePath);
+		updateTransformedBitmap(true);
+		invalidate();
+	}
+	
+	public void setBitmap(Bitmap bitmap) {
+		originalBitmapWrapper.setBitmap(bitmap);
+		sizeState = ImageSizeStateFactory.getInstance().createImageSizeState(bitmap.getWidth(), bitmap.getHeight(), getWidth(), getHeight());
 		updateTransformedBitmap(true);
 		invalidate();
 	}
@@ -192,6 +196,12 @@ public class ImageEditorView extends View {
 	
 	public Matrix getInverse() {
 		return inverse;
+	}
+	
+	public void performZoomAction() {
+		sizeState.performZoomAction();
+		updateTransformedBitmap(true);
+		invalidate();
 	}
 	
 }
