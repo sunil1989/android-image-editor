@@ -6,10 +6,12 @@ public interface ImageSizeState {
 	
 	enum ZoomAction {ZOOM_IN, ZOOM_OUT}
 	
-	boolean prepareDefaultScaleAndCheckFit(Matrix transform);
+	boolean prepareScaleAndCheckFit(Matrix transform);
 	
 	ZoomAction getAvailableZoomAction();
 	
-	boolean performZoomActionAndCheckFit(Matrix transform);
+	void performZoomAction();
+	
+	//boolean performZoomActionAndCheckFit(Matrix transform);
 
 }

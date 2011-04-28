@@ -37,7 +37,7 @@ public class MemoryBitmap extends AbstractBitmapWrapper {
 	public void setBitmap(String bitmapFilePath) {
 		setBitmap(loadBitmapFromFile(bitmapFilePath), false);
 	}
-	
+
 	public void setBitmap(Bitmap bitmap, boolean needMakeCopy) {
 		if (this.bitmap != null) {
 			this.bitmap.recycle();

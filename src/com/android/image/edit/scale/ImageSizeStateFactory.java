@@ -13,8 +13,17 @@ public class ImageSizeStateFactory {
 		return instance;
 	}
 	
-	public ImageSizeState getImageSizeState(int originalImageWidth, int originalImageHeight, int viewWidth, int viewHeight) {
-		
+	public ImageSizeState createImageSizeState(int originalImageWidth, int originalImageHeight, int viewWidth, int viewHeight) {
+		float ratio = Math.max(originalImageWidth / viewWidth, originalImageHeight / viewHeight);
+		if (ratio < 0.9) {
+			return new MuchLessThanScreenSize(originalImageWidth, originalImageHeight, viewWidth, viewHeight);
+		} else if (ratio > 1.1) {
+			return new MuchLargerThanScreenSize(originalImageWidth, originalImageHeight, viewWidth, viewHeight);
+		} else if (ratio < 1) {
+			return new LittleLessThanScreenSize(originalImageWidth, originalImageHeight, viewWidth, viewHeight);
+		} else {
+			return new LittleLargerThanScreenSize(originalImageWidth, originalImageHeight, viewWidth, viewHeight);
+		}
 	}
 
 }
