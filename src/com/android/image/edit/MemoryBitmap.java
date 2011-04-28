@@ -2,7 +2,6 @@ package com.android.image.edit;
 
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
-import android.graphics.Paint;
 import android.graphics.Path;
 
 public class MemoryBitmap extends AbstractBitmapWrapper {
@@ -13,18 +12,19 @@ public class MemoryBitmap extends AbstractBitmapWrapper {
 	private boolean originalBitmap;
 	
 	public MemoryBitmap(int backgroundColor, boolean originalBitmap) {
+		super(originalBitmap);
 		this.backgroundColor = backgroundColor;
 		this.originalBitmap = originalBitmap;
 	}
 	
 	public MemoryBitmap(int backgroundColor, Bitmap bitmap, boolean originalBitmap, boolean needMakeCopy) {
-		this.backgroundColor = backgroundColor;
-		this.originalBitmap = originalBitmap;
+		this(backgroundColor, originalBitmap);
 		setBitmap(bitmap, needMakeCopy);
 	}
 
 	@Override
-	public void drawPath(Path path, Paint paint) {
+	public void drawPath(Path path, float strokeWidth) {
+		paint.setStrokeWidth(strokeWidth);
 		canvas.drawPath(path, paint);
 	}
 	
