@@ -3,19 +3,16 @@ package com.android.image.edit.scroll;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Matrix;
-import android.graphics.Paint;
-import android.graphics.RectF;
+import android.graphics.Rect;
 
 public interface ImageScrollState {
 	
-	void setScrollByX(float scrollByX);
+	void setScrollByXY(float scrollByX, float scrollByY);
 	
-	void setScrollByY(float scrollByY);
+	void drawBitmap(Canvas canvas, Bitmap bitmap, Matrix matrix) throws IllegalArgumentException;
 	
-	void drawBitmap(Canvas canvas, Bitmap bitmap, Paint paint, int viewWidth, int viewHeight);
+	Rect getVisibleRegionBounds();
 	
-	RectF getVisibleRegionBounds();
-	
-	Matrix getTranslate();
+	Matrix getScreenToCurrentZoom();
 
 }

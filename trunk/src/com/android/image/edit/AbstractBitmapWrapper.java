@@ -8,22 +8,22 @@ import android.graphics.PorterDuffXfermode;
 
 public abstract class AbstractBitmapWrapper implements BitmapWrapper {
 	
-	protected Paint paint;
+	protected Paint pathPaint;
 	
 	public AbstractBitmapWrapper(boolean originalBitmap) {
-		paint = createPaint(originalBitmap);
+		pathPaint = createPaint(originalBitmap);
 	}
 
 	protected Bitmap loadBitmapFromFile(String bitmapFilePath) {
 		BitmapFactory.Options options = new BitmapFactory.Options();
-		options.inPreferredConfig = ImageEditorView.nonAlphaBitmapConfig;
+		options.inPreferredConfig = ImageEditorView.DISPLAYABLE_BITMAP_CONFIG;
 		return BitmapFactory.decodeFile(bitmapFilePath, options);
 	}
 	
 	private Paint createPaint(boolean originalBitmap) {
 		Paint paint = new Paint();
-		paint.setAntiAlias(true);
-		paint.setDither(true);
+		//paint.setAntiAlias(true);
+		//paint.setDither(true);
 		paint.setColor(ImageEditorView.BACKGROUND_COLOR);
 		paint.setStyle(Paint.Style.STROKE);
 		paint.setStrokeJoin(Paint.Join.ROUND);

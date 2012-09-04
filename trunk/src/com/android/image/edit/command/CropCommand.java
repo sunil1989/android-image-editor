@@ -5,21 +5,22 @@ import android.graphics.RectF;
 
 import com.android.image.edit.BitmapWrapper;
 
-public class CropCommand extends AbstractMultiTargetCommand<BitmapWrapper> {
+public class CropCommand extends AbstractImageEditCommand {
 
-	public CropCommand(BitmapWrapper target) {
-		super(target);
+	public CropCommand() {
+		super(false, false);
 	}
 
 	@Override
 	public void execute(BitmapWrapper target, Object... params) {
-		if (!(params[0] instanceof RectF)) {
-			throw new IllegalArgumentException("android.graphics.RectF expected but was " + params[0].getClass());
-		}
 		RectF selection = (RectF)params[0];
-		Bitmap croppedBitmap = Bitmap.createBitmap(target.getBitmap(), Math.round(selection.left), Math.round(selection.top), Math.round(selection.width()), Math.round(selection.height()));
-		target.setBitmap(croppedBitmap);
-		//croppedBitmap.recycle();
+		Bitmap bitmap = target.getBitmap();
+		int x = Math.round(selection.left);
+		int y = Math.round(selection.top);
+		int width = Math.min(Math.round(selection.width()), bitmap.getWidth() - x);
+		int height = Math.min(Math.round(selection.height()), bitmap.getHeight() - y);
+		Bitmap croppedBitmap = Bitmap.createBitmap(target.getBitmap(), x, y, width, height);
+		target.setBitmap(croppedBitmap, null);
 	}
 	
 }

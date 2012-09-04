@@ -3,34 +3,31 @@ package com.android.image.edit.scroll;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Matrix;
-import android.graphics.Paint;
-import android.graphics.RectF;
 
-public class ImageNoScrollState implements ImageScrollState {
+public class ImageNoScrollState extends AbstractImageScrollState {
 	
-	private Matrix translate = new Matrix();
-	private RectF visibleRegionBounds = new RectF();
+	int dx, dy;
 	
-	@Override
-	public void drawBitmap(Canvas canvas, Bitmap bitmap, Paint paint, int viewWidth, int viewHeight) {
-		canvas.drawBitmap(bitmap, 0, 0, paint);
-		visibleRegionBounds.set(0, 0, bitmap.getWidth(), bitmap.getHeight());
+	public ImageNoScrollState(int imageWidth, int imageHeight, int viewWidth, int viewHeight) {
+		super(imageWidth, imageHeight, viewWidth, viewHeight);
+		dx = (viewWidth - imageWidth)/2;
+		dy = (viewHeight - imageHeight)/2;
+		screenToCurrentZoom.setTranslate(-dx, -dy);
+		visibleRegionBounds.set(dx, dy, imageWidth + dx, imageHeight + dy);
 	}
 
 	@Override
-	public void setScrollByX(float scrollByX) {}
-
-	@Override
-	public void setScrollByY(float scrollByY) {}
-
-	@Override
-	public RectF getVisibleRegionBounds() {
-		return visibleRegionBounds;
+	public void drawBitmap(Canvas canvas, Bitmap bitmap, Matrix matrix) {
+		if (matrix == null || isIdentity(matrix)) {
+			canvas.drawBitmap(bitmap, dx, dy, null);
+		} else {
+			Matrix m = new Matrix(matrix);
+			m.postTranslate(dx, dy);
+			canvas.drawBitmap(bitmap, m, null);
+		}
 	}
 
 	@Override
-	public Matrix getTranslate() {
-		return translate;
-	}
+	public void setScrollByXY(float scrollByX, float scrollByY) {}
 	
 }
