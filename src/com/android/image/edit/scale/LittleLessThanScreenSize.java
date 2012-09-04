@@ -7,13 +7,20 @@ public class LittleLessThanScreenSize extends AbstractImageSizeState {
 		super(originalImageWidth, originalImageHeight, viewWidth, viewHeight);
 	}
 
-	protected DefaultImageScaleStrategies getDefaultScaleStrategy() {
-		return DefaultImageScaleStrategies.FIT_TO_SCREEN_SIZE;
+	@Override
+	protected ZoomState getDefaultZoomState() {
+		return ZoomState.ZOOMED_OUT;
 	}
 
 	@Override
-	protected DefaultImageScaleStrategies getZoomedScaleStrategy() {
+	protected ImageScaleStrategy getScaleStrategy(ZoomState zoomState) {
+		switch (zoomState) {
+		case ZOOMED_OUT:
+			return DefaultImageScaleStrategies.ORIGINAL_SIZE;
+		case ZOOMED_IN:
 		return DefaultImageScaleStrategies.ZOOM_150_PERCENT;
+		default: return null;
+		}
 	}
 
 }

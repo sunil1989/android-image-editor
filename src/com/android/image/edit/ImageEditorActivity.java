@@ -12,8 +12,6 @@ import android.graphics.BitmapFactory;
 
 import com.android.image.edit.tool.EraseTool;
 import com.android.image.edit.tool.ScrollTool;
-import com.android.image.edit.tool.select.EditRectSelectionTool;
-import com.android.image.edit.R;
 
 
 import android.net.Uri;
@@ -24,6 +22,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import com.android.image.edit.tool.select.SelectionToolImpl;
 
 public class ImageEditorActivity extends Activity {
 	
@@ -66,13 +65,13 @@ public class ImageEditorActivity extends Activity {
         findViewById(R.id.erase).setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				imageEditorView.changeTool(new EraseTool(imageEditorView));
+				imageEditorView.changeTool(new EraseTool());
 			}
 		});
         findViewById(R.id.crop).setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				imageEditorView.changeTool(new EditRectSelectionTool(imageEditorView));
+				imageEditorView.changeTool(new SelectionToolImpl(imageEditorView));
 				toolsFooter.setVisibility(View.GONE);
 				cropFooter.setVisibility(View.VISIBLE);
 			}
@@ -142,16 +141,16 @@ public class ImageEditorActivity extends Activity {
 			} catch (FileNotFoundException e) {
 				e.printStackTrace();
 			}
-			imageEditorView.getBitmap().compress(Bitmap.CompressFormat.PNG, 90, out);
+			imageEditorView.getBitmap().get().compress(Bitmap.CompressFormat.PNG, 90, out);
 			return true;
 		} else if (item.getItemId() == UNDO_MENU_ITEM_ID) {
 			imageEditorView.undo();
 		} else if (item.getItemId() == SELECTION_MENU_ITEM_ID) {
-			imageEditorView.changeTool(new EditRectSelectionTool(imageEditorView));
+			imageEditorView.changeTool(new SelectionToolImpl(imageEditorView));
 		} else if (item.getItemId() == CROP_MENU_ITEM_ID) {
 			imageEditorView.crop();
 		} else if (item.getItemId() == ERASE_MENU_ITEM_ID) {
-			imageEditorView.changeTool(new EraseTool(imageEditorView));
+			imageEditorView.changeTool(new EraseTool());
 		} else if (item.getItemId() == OPEN_MENU_ITEM_ID) {
 			Intent intent = new Intent();
             intent.setType("image/*");
@@ -191,7 +190,7 @@ public class ImageEditorActivity extends Activity {
                 	return;
                 }
                 BitmapFactory.Options options = new BitmapFactory.Options();
-        		options.inPreferredConfig = ImageEditorView.nonAlphaBitmapConfig;
+        		options.inPreferredConfig = ImageEditorView.DISPLAYABLE_BITMAP_CONFIG;
                 getImageEditorView().setBitmap(BitmapFactory.decodeFile(currentImagePath, options));
             }
         }

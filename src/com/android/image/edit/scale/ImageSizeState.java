@@ -1,17 +1,21 @@
 package com.android.image.edit.scale;
 
-import android.graphics.Matrix;
-
 public interface ImageSizeState {
 	
-	enum ZoomAction {ZOOM_IN, ZOOM_OUT}
+	enum ZoomState {ZOOMED_OUT, ZOOMED_IN}
 	
-	boolean prepareScaleAndCheckFit(Matrix transform);
-	
-	ZoomAction getAvailableZoomAction();
+	ZoomState getCurrentZoomState();
 	
 	void performZoomAction();
 	
-	//boolean performZoomActionAndCheckFit(Matrix transform);
+	int getImageWidth();
+	
+	int getImageHeight();
+	
+	float getOriginalToMaxZoomScale();
+	
+	float getMaxZoomToCurrentZoomScale();
+	
+	float getCurrentZoomToOriginalScale();
 
 }
